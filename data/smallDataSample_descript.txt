@@ -1,0 +1,39 @@
+-------------------------------------
+Small Input Data Sample (Descriptive)
+-------------------------------------
+
+#########
+Scotland:
+#########
+    Recognized Language (non-exhaustive): Scottish Gaelic
+    Population (UK Census 2019 Estimate): 5,463,300
+                          Major Religion: Protestant Christianity (Church of Scotland)
+                                     GDP: $    205,000,000,000 USD (2020 Q2 estimate)
+                                    Area:  77,933 km^2
+
+########
+England:
+########
+                     Recognized Language: English
+    Population (UK Census 2019 Estimate): 56,286,961
+                          Major Religion: Protestant Christianity (Church of England)
+                                     GDP: $  2,400,000,000,000 USD (2019 estimate)
+                                    Area: 130,279 km^2
+
+######
+Wales:
+######
+    Recognized Language (non-exhaustive): Welsh
+    Population (UK Census 2019 Estimate): 3,153,000
+                          Major Religion: Protestant Christianity (Church of Wales)
+                                     GDP: $    105,918,000,000 USD (2018 estimate, converted from British Pound Sterling)
+                                    Area:  20,779 km^2
+
+#################
+Northern Ireland:
+#################
+    Recognized Language (non-exhaustive): Irish
+    Population (UK Census 2019 Estimate): 1,893,700
+                          Major Religion: Protestant Christianity (41.5% non-Catholic vs 41% Catholic, very slim majority)
+                                     GDP: $     46,000,000,000 USD (2018 Q2 estimate)
+                                    Area:  14,130 km^2
