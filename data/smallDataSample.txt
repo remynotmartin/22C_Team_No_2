@@ -1,4 +1,4 @@
-Scotland;English;5463300;Protestant Christianity;205000000000;77933;
-England;English;56286961;Protestant Christianity;2400000000000;130279;
-Wales;English;3153000;Protestant Christianity; 105918000000;20779;
-Northern Ireland;English;1893700;Protestant Christianity;46000000000;14130;
+Scotland;English;5463300;Protestant Christianity;205000000000;77933;Edinburgh;
+England;English;56286961;Protestant Christianity;2400000000000;130279;London;
+Wales;English;3153000;Protestant Christianity; 105918000000;20779;Cardiff;
+Northern Ireland;English;1893700;Protestant Christianity;46000000000;14130;Belfast;

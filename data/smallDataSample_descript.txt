@@ -10,6 +10,7 @@ Scotland:
                           Major Religion: Protestant Christianity (Church of Scotland)
                                      GDP: $    205,000,000,000 USD (2020 Q2 estimate)
                                     Area:  77,933 km^2
+                            Capital City: Edinburgh
 
 ########
 England:
@@ -19,6 +20,7 @@ England:
                           Major Religion: Protestant Christianity (Church of England)
                                      GDP: $  2,400,000,000,000 USD (2019 estimate)
                                     Area: 130,279 km^2
+                            Capital City: London
 
 ######
 Wales:
@@ -28,6 +30,7 @@ Wales:
                           Major Religion: Protestant Christianity (Church of Wales)
                                      GDP: $    105,918,000,000 USD (2018 estimate, converted from British Pound Sterling)
                                     Area:  20,779 km^2
+                            Capital City: Cardiff
 
 #################
 Northern Ireland:
@@ -37,3 +40,4 @@ Northern Ireland:
                           Major Religion: Protestant Christianity (41.5% non-Catholic vs 41% Catholic, very slim majority)
                                      GDP: $     46,000,000,000 USD (2018 Q2 estimate)
                                     Area:  14,130 km^2
+                            Capital City: Belfast
