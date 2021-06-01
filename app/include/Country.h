@@ -18,6 +18,7 @@ private:
     string   stateReligion;
     double   GDP;
     double   surfaceArea;
+    string   capitalCity;
     
 public:
     Country() {name = ""; language = ""; population = -1; stateReligion = ""; GDP = -1; surfaceArea = -1;}
