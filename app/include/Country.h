@@ -21,13 +21,13 @@ private:
     string   capitalCity;
     
 public:
-    Country() {name = ""; language = ""; population = -1; stateReligion = ""; GDP = -1; surfaceArea = -1;}
-    Country(string   n;
-            string   lang;
-            unsigned pNum;
-            string   religion;
-            double   g;
-            double   area;) {name = n; language = lang; population = pNum; stateReligion = religion; GDP = g; surfaceArea = area;}
+    Country(): name{""}, language{""}, population{-1}, stateReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
+    Country(string   n,
+            string   lang,
+            unsigned pNum,
+            string   religion,
+            double   g,
+            double   area): name{n}, language{lang}, population{pNum}, stateReligion{religion}, GDP{g}, surfaceArea{area} {}
     
     // Setters and getters
     void setName          (string   n)        {name = n;}
@@ -36,6 +36,7 @@ public:
     void setStateReligion (string   religion) {stateReligion = religion;}
     void setGDP           (double   g)        {GDP = g;}
     void setSurfaceArea   (double   area)     {surfaceArea = area;}
+    void setCapitalCity   (string   cityName) {capitalCity = cityName;}
     
     string   getName          () const {return name;}
     string   getLanguage      () const {return language;}
@@ -43,6 +44,7 @@ public:
     string   getStateReligion () const {return stateReligion;}
     double   getGDP           () const {return GDP;}
     double   getSurfaceArea   () const {return surfaceArea;}
+    string   getCapitalCity   () const {return capitalCity;}
     
     // Overloaded operators
     // TBD
