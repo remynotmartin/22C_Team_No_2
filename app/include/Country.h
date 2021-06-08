@@ -21,7 +21,7 @@ private:
     string   capitalCity;
     
 public:
-    Country(): name{""}, language{""}, population{-1}, stateReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
+    Country(): name{""}, language{""}, population{0}, stateReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
     Country(string   n,
             string   lang,
             unsigned pNum,
