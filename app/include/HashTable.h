@@ -48,10 +48,11 @@ int HashTable<ItemType>::_hash(string key) const
 template<class ItemType>
 bool HashTable<ItemType>::insert( const ItemType &itemIn)
 {
-    int bucket = _hash(itemIn.getName());
-    string key = itemIn.getName();
+    int    bucket = _hash(itemIn.getName());
+    string key    = itemIn.getName();
     
-    if(search(itemIn, key) == NULL){
+    if (search(itemIn, key) == NULL)
+    {
         HashNode<ItemType> list = hashAry[bucket];
         list.getList().insertNode(itemIn);
         return true;
@@ -70,7 +71,7 @@ template<class ItemType>
 int HashTable<ItemType>::search(ItemType &itemOut, string key)
 {
     HashNode<ItemType> list = hashAry[_hash(key)];
-    if(list.getList().searchList(key, itemOut))
+    if (list.getList().searchList(key, itemOut))
         return 1;
     else
         return -1;
