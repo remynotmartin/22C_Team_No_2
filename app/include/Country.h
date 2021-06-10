@@ -15,25 +15,21 @@ private:
     string   name;          //   Primary Key
     string   language;      // Secondary Key
     unsigned population;
-    string   stateReligion;
+    string   majorReligion;
     double   GDP;
     double   surfaceArea;
     string   capitalCity;
     
 public:
-    Country(): name{""}, language{""}, population{0}, stateReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
-    Country(string   n,
-            string   lang,
-            unsigned pNum,
-            string   religion,
-            double   g,
-            double   area): name{n}, language{lang}, population{pNum}, stateReligion{religion}, GDP{g}, surfaceArea{area} {}
+    Country(): name{""}, language{""}, population{0}, majorReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
+    Country(string, string, unsigned, string, double, double, string);
+    ~Country() {}
     
     // Setters and getters
     void setName          (string   n)        {name = n;}
     void setLanguage      (string   lang)     {language = lang;}
     void setPopulation    (unsigned pNum)     {population = pNum;}
-    void setStateReligion (string   religion) {stateReligion = religion;}
+    void setMajorReligion (string   religion) {majorReligion = religion;}
     void setGDP           (double   g)        {GDP = g;}
     void setSurfaceArea   (double   area)     {surfaceArea = area;}
     void setCapitalCity   (string   cityName) {capitalCity = cityName;}
@@ -41,13 +37,22 @@ public:
     string   getName          () const {return name;}
     string   getLanguage      () const {return language;}
     unsigned getPopulation    () const {return population;}
-    string   getStateReligion () const {return stateReligion;}
+    string   getMajorReligion () const {return majorReligion;}
     double   getGDP           () const {return GDP;}
     double   getSurfaceArea   () const {return surfaceArea;}
     string   getCapitalCity   () const {return capitalCity;}
     
     // Overloaded operators
-    // TBD
+    friend std::ostream &operator<<(std::ostream &out, const Country &rhs);
+
+    bool operator==(const Country     &rhs) const;
+    bool operator< (const Country     &rhs) const; 
+    bool operator> (const Country     &rhs) const; 
+
+    bool operator==(const std::string &rhs) const;
+    bool operator< (const std::string &rhs) const;
+    bool operator> (const std::string &rhs) const;
+
 };
 
 #endif // Country.h

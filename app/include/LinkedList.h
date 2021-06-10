@@ -1,10 +1,10 @@
-//        Written by: Shun Furuya
-// Style adjustments: Remy Dinh
+//           Originally written by: Shun Furuya
+// Integration & Style adjustments: Remy Dinh
 
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
-#include "Country.h"
+#include<string>
 
 template<class ItemType>
 class LinkedList
@@ -20,39 +20,57 @@ private:
     int   length;
 
 public:
-    LinkedList();   // constructor
-    ~LinkedList();  // destructor
+    LinkedList();  // constructor
+    ~LinkedList(); // destructor
 
     // Linked list operations
-    int  getLength   ()                   const {return length;}
-    void insertNode  (ItemType);
-    bool deleteNode  (const string);
-    void displayList ()                   const;
-    bool searchList  (string, ItemType &) const;
+    int  getLength   ()                          const {return length;}
+    bool insertNode  (const ItemType&);
+    bool deleteNode  (const std::string&);
+    void displayList ()                          const;
+    bool searchList  (const std::string&, ItemType &) const;
+    bool prependList (const ItemType&);
 };
 
 template <class ItemType>
 LinkedList<ItemType>::LinkedList()
 {
-    head = new Node;
-    head->setNext(head);
-    length = 0;
+    head       = new Node;   // Sentinel Node
+    head->next = head;
+    length     = 0;
 }
 
+// Implemented by Remy (during integration phase)
+
 template <class ItemType>
-void LinkedList<ItemType>::insertNode(ItemType dataIn)
+LinkedList<ItemType>::~LinkedList()
 {
-    Node *newNode;
-    Node *pCur;
-    Node *pPre;
+    // To be done: Free the list such that no memory leak occurs.
+}
+
+
+// Notes by Remy (during integration phase)
+// - return type changed from void to bool
+// - I called a search on the list to check if the primary key (country name) already exists
+template <class ItemType>
+bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
+{
+    ItemType durak; 
+    // Search list first to ensure primary key doesn't already exist
+    if (searchList(dataIn.getName(), durak))
+        return false;
+
+    Node *newNode,
+         *pCur,
+         *pPre;
 
     newNode       = new Node;
     newNode->item = dataIn;
 
-    pPre = head;
-    pCur = head->next;
+    pPre = head;        // Start pre at Sentinel Node
+    pCur = head->next;  // Start cur at "1st Node"
 
-    while (pCur && newNode->item > pCur->item)
+    while (pCur != head && newNode->item > pCur->item)
     {
         pPre = pCur;
         pCur = pCur->next;
@@ -60,12 +78,14 @@ void LinkedList<ItemType>::insertNode(ItemType dataIn)
     
     pPre->next    = newNode;
     newNode->next = pCur;
+
     
     length++;
+    return true;
 }
 
 template <class ItemType>
-bool LinkedList<ItemType>::deleteNode(const string target)
+bool LinkedList<ItemType>::deleteNode(const std::string &target)
 {
     Node *pCur;
     Node *pPre;
@@ -91,7 +111,7 @@ bool LinkedList<ItemType>::deleteNode(const string target)
 }
 
 template <class ItemType>
-bool LinkedList<ItemType>::searchList(const string target, ItemType &dataOut) const
+bool LinkedList<ItemType>::searchList(const std::string &target, ItemType &dataOut) const
 {
     bool  found = false;
     Node *pCur;
@@ -109,6 +129,27 @@ bool LinkedList<ItemType>::searchList(const string target, ItemType &dataOut) co
     }
 
     return found;
+}
+
+
+// displayList()
+//
+// Implemented by Remy during the integration phase
+// of this project, primarily for purposes of testing.
+template <class ItemType>
+void LinkedList<ItemType>::displayList() const
+{
+    Node     *wanderer = head->next; // Skip past the sentinel node
+    unsigned itemCount = 1u;
+
+    while (wanderer != head)
+    {
+        std::cout << std::endl;
+        std::cout << "Item: " << itemCount << std::endl;
+        std::cout << wanderer->item;
+        wanderer = wanderer->next;
+        itemCount++;
+    }
 }
 
 #endif

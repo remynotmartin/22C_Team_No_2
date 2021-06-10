@@ -1,5 +1,5 @@
 England,English,56286961,Protestant Christianity,2400000000000,130279,London
-Wales,Welsh,3153000,Protestant Christianity,105918000000,20779,Cardiff
+Wales,Welsh,3153000,Protestant Christianity,105918000000,20779,Cardiff,
 Northern Ireland,Irish,1893700,Protestant Christianity,46000000000,14130,Belfast
 Scotland,Scottish Gaelic,5463300,Protestant Christianity,205000000000,77933,Edinburgh
 Republic of Ireland,Irish,4977400,Roman Catholicism,500000000000,70273,Dublin
@@ -42,4 +42,4 @@ Romania,Romanian,19317984,Orthodox Christianity,636481000000,238397,Bucharest
 Moldova,Romanian,2640438,Orthodox Christianity,35906000000,33846,Chisinau
 Cyprus,Greek,1189265,Orthodox Christianity,35970000000,9251,Nicosia
 Kosovo,Albanian,1873160,Sunni Islam,23524000000,10887,Pristina
-Montenegro,Serbian,621873,Orthodox Christianity,12000000000,13812,Podgorica
+Montenegro,Montenegrin,621873,Orthodox Christianity,12000000000,13812,Podgorica
