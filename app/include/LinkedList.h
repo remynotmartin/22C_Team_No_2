@@ -12,8 +12,8 @@ class LinkedList
 private:
     struct Node
     {
-        ItemType item;
-        Node    *next;
+        ItemType  item;
+        Node     *next;
     };
 
     Node *head;
@@ -24,10 +24,10 @@ public:
     ~LinkedList(); // destructor
 
     // Linked list operations
-    int  getLength   ()                          const {return length;}
+    int  getLength   ()                               const {return length;}
     bool insertNode  (const ItemType&);
     bool deleteNode  (const std::string&);
-    void displayList ()                          const;
+    void displayList ()                               const;
     bool searchList  (const std::string&, ItemType &) const;
     bool prependList (const ItemType&);
 };
