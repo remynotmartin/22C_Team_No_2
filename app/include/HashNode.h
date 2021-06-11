@@ -15,19 +15,19 @@ private:
     int                  noCollisions;
 
 public:
-    HashNode()                                   {occupied = 0; noCollisions = 0;}
-    HashNode(ItemType anItem)                    {list.insertNode(anItem); occupied = 1; noCollisions = 0;}
-    HashNode(ItemType anItem, int ocp, int nCol) {list.insertNode(anItem); occupied = ocp; noCollisions = nCol;}
+    HashNode ()                                   { occupied = 0; noCollisions = 0; }
+    HashNode (ItemType anItem)                    { list.insertNode(anItem); occupied = 1; noCollisions = 0; }
+    HashNode (ItemType anItem, int ocp, int nCol) { list.insertNode(anItem); occupied = ocp; noCollisions = nCol; }
     
     // setters
-    void setItem         (const ItemType &anItem) {list.insertNode(anItem);}
-    void setOccupied     (int ocp)                {occupied = ocp;}
-    void setNoCollisions (int nCol)               {noCollisions = nCol;}
+    void setItem         (const ItemType &anItem) { list.insertNode(anItem); }
+    void setOccupied     (int ocp)                { occupied = ocp; }
+    void setNoCollisions (int nCol)               { noCollisions = nCol; }
     
     // getters
-    LinkedList<ItemType> getList         () const {return list;}
-    int                  getOccupied     () const {return occupied;}
-    int                  getNoCollisions () const {return noCollisions;}
+    LinkedList<ItemType> getList         () const { return list; }
+    int                  getOccupied     () const { return occupied; }
+    int                  getNoCollisions () const { return noCollisions; }
 };
 
 #endif

@@ -28,7 +28,7 @@ public:
     
     bool insert ( const ItemType &itemIn);
     bool remove ( ItemType &itemOut, const ItemType &key);
-    int  search ( ItemType &itemOut, string key);
+    int  search ( ItemType &itemOut, const string &key);
     
 private:
     int _hash(string key) const;
@@ -68,7 +68,7 @@ bool HashTable<ItemType>::remove(ItemType &itemOut, const ItemType &key)
 
 
 template<class ItemType>
-int HashTable<ItemType>::search(ItemType &itemOut, string key)
+int HashTable<ItemType>::search(ItemType &itemOut, const string &key)
 {
     HashNode<ItemType> list = hashAry[_hash(key)];
     if (list.getList().searchList(key, itemOut))

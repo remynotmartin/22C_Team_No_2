@@ -14,6 +14,7 @@
 
 #include "LinkedList.h"
 #include "Country.h"
+#include "Stack.h"      // For the undo-stack
 
 void splashScreen();
 void mainMenu();
@@ -168,9 +169,8 @@ bool fileRead(LinkedList<Country> &coreDataList)
     // 1. Display indented tree          (Not yet implemented)
     // 2. Display names of team members  (Complete)
     //
-    // Additional functionality we need to implement since we're a team of four.
+    // Additional functionality we need to implement since we're a team of four:
     //
-    // * Undo deletion of records with a stack; clear it whenever database is written to output file.
-    // * Rehashing of the hash table when the load factor is 75%.
-    //
+    //     1. Undo deletion of records with a stack; clear it whenever database is written to output file.
+    //     2. Rehashing of the hash table when the load factor is 75%.
     //

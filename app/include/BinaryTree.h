@@ -10,8 +10,8 @@ template<class ItemType>
 class BinaryTree
 {
 protected:
-    BinaryNode<ItemType>* rootPtr;        // ptr to root node
-    int count;                            // number of nodes in tree
+    BinaryNode<ItemType> *rootPtr;        // ptr to root node
+    unsigned              count;          // number of nodes in tree
 
 public:
     // "admin" functions
@@ -20,25 +20,27 @@ public:
     virtual ~BinaryTree() { destroyTree(rootPtr); }
    
     // common functions for all binary trees
-    bool isEmpty() const    {return count == 0;}
-    int getCount() const {return count;}
-    void clear()            {destroyTree(rootPtr); rootPtr = 0; count = 0;}
-    void inOrder(void visit(ItemType &)) const  {_inorder(visit, rootPtr);}
-    void printTree(void visit(ItemType &, int)) const{_printTree(visit, rootPtr, 1);}
+    bool     isEmpty   ()                            const { return count == 0; }
+    unsigned getCount  ()                            const { return count; }
+    void     clear     ()                                  { destroyTree(rootPtr); rootPtr = 0; count = 0; }
+    void     inOrder   (void visit(ItemType &))      const { _inorder(visit, rootPtr); }
+    void     printTree (void visit(ItemType &, int)) const { _printTree(visit, rootPtr, 1); }
+
     // abstract functions to be implemented by derived class
-    bool insertBST(const ItemType &item);
-    bool searchBST(const ItemType &target, ItemType &returnedItem) const;
+    bool insertBST (const ItemType &item);
+    bool searchBST (const ItemType &target, ItemType &returnedItem) const;
 
 private:
     // delete all nodes from the tree
-    void destroyTree(BinaryNode<ItemType>* nodePtr);
+    void destroyTree (BinaryNode<ItemType>* nodePtr);
 
     // internal traverse
-    void _inorder(void visit(ItemType &), BinaryNode<ItemType>* nodePtr) const;
-    void _printTree(void visit(ItemType &, int), BinaryNode<ItemType>* nodePtr, int level) const;
-    void _insert(BinaryNode<ItemType>* nodePtr, BinaryNode<ItemType>* newNode);
+    void _inorder   (void visit(ItemType &), BinaryNode<ItemType>* nodePtr)                 const;
+    void _printTree (void visit(ItemType &, int), BinaryNode<ItemType>* nodePtr, int level) const;
+    void _insert    (BinaryNode<ItemType>* nodePtr, BinaryNode<ItemType>* newNode);
+
     // search for target node
-    void _search(BinaryNode<ItemType>* treePtr, const ItemType &target) const;
+    void _search (BinaryNode<ItemType>* treePtr, const ItemType &target) const;
    
 };
 
