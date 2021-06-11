@@ -15,11 +15,13 @@
 #include "LinkedList.h"
 #include "Country.h"
 #include "Stack.h"      // For the undo-stack
+#include "HashTable.h"
 
-void splashScreen();
-void mainMenu();
-bool fileRead(LinkedList<Country> &coreDataList);
-void teamNames(); // Required Easter Egg
+void splashScreen ();
+void mainMenu     ();
+bool fileRead     (LinkedList<Country> &coreDataList);
+void teamNames    ();
+void removeData   (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
 
 // These paths assume program is run from project root.
 const std::string  inputFilename = "./data/primaryData.csv";
@@ -29,6 +31,7 @@ int main()
 {
     splashScreen();
     LinkedList<Country> coreDataList;
+    Stack<Country>      undoStack;
 
     // Read primary input data
     if (!fileRead(coreDataList))
@@ -44,10 +47,15 @@ int main()
         // Then execute the respective selected option below.
         switch (userChoice)
         {
-            case 8:
+            case 1: // Add new Data
+                //addData(coreDataList); // Function not ready yet
+            case 2: // Delete Data
+                removeData(coreDataList, undoStack);
+                break;
+            case 8: // Testing: Display coreDataList
                 coreDataList.displayList();
                 break;
-            case 9:
+            case 9: // Display Main Menu
                 mainMenu();
                 break;
             case 0:
@@ -95,7 +103,7 @@ void mainMenu()
     std::cout << "-----------" << std::endl;
 
     std::cout << "1. Add new data"               << std::endl;
-    std::cout << "2. Delete data"                << std::endl; // Need to figure out how this will work
+    std::cout << "2. Delete data"                << std::endl;
     std::cout << "3. Search by country name"     << std::endl; // Primary key, uses Hash Table
     std::cout << "4. Search by language"         << std::endl; // Secondary key, uses (BST)
     std::cout << "5. List countries by language" << std::endl; // Print inOrder traversal of the BST
@@ -108,6 +116,7 @@ void mainMenu()
 }
 
 // Little easter egg as per project requirements.
+// Menu Option: 42
 void teamNames()
 {
     std::cout << "##########################################" << std::endl;
@@ -120,6 +129,10 @@ void teamNames()
     std::cout << "##########################################" << std::endl;
 }
 
+// Reads in data from the primaryData.csv input file.
+// File to be read is currently hard-coded, but could relatively easily
+// be changed to accept a filename from a user.
+//
 bool fileRead(LinkedList<Country> &coreDataList)
 {
     std::ifstream inputFile(inputFilename);
@@ -165,12 +178,13 @@ bool fileRead(LinkedList<Country> &coreDataList)
 
     return true;
 }
-    // Hidden menu options to implement
-    // 1. Display indented tree          (Not yet implemented)
-    // 2. Display names of team members  (Complete)
-    //
-    // Additional functionality we need to implement since we're a team of four:
-    //
-    //     1. Undo deletion of records with a stack; clear it whenever database is written to output file.
-    //     2. Rehashing of the hash table when the load factor is 75%.
-    //
+
+void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
+{
+    std::string query("");
+    std::cout << "Please input the name of the country you want to remove: ";
+    std::cin.ignore(256, '\n');
+    std::cin >> query;
+    std::cout << "Okay, so you want to remove: [" << query << "] from this database." << std::endl;
+    std::cout << "Function will proceed as construction progresses...\n";
+}

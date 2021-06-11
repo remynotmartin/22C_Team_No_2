@@ -11,30 +11,27 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include <new> // for std::bad_alloc in event dynamic memory runs out.
+#include "ListNode.h"
 
 template <typename ItemType>
 class Stack
 {
 private:
-    struct StackNode
-    {
-        ItemType   item;
-        StackNode *next;
-    }
-    StackNode *top;
-    unsigned   count;
+    ListNode<ItemType> *top;
+    unsigned            count;
 
 public:
     Stack();
     ~Stack();
 
+    // Accessors
     bool       isEmpty  () const { return count == 0; }
-    ItemType   peek     () const { return top->item; }
+    ItemType   peek     () const { return top->getItem(); }
     unsigned   getCount () const { return count; }
-    StackNode *pop      ();
-    bool       push     (const ItemType &);
-    bool       clear    ();
+
+    ListNode<ItemType> *pop      ();
+    bool                push     (const ListNode<ItemType> &);
+    bool                clear    ();
 };
 
 template <typename ItemType>
@@ -50,7 +47,7 @@ Stack<ItemType>::Stack()
 template <typename ItemType>
 Stack<ItemType>::~Stack()
 {
-    StackNode *durak;
+    ListNode<ItemType> *durak;
     while (top != nullptr)
     {
         durak = pop();
@@ -60,12 +57,12 @@ Stack<ItemType>::~Stack()
 }
 
 template <typename ItemType>
-bool Stack<ItemType>::smash()
+bool Stack<ItemType>::clear()
 {
     if (isEmpty())
         return false;
 
-    StackNode *durak;
+    ListNode<ItemType> *durak;
     while (top != nullptr)
     {
         durak = pop();
@@ -75,35 +72,24 @@ bool Stack<ItemType>::smash()
 }
 
 template <typename ItemType>
-StackNode *Stack<ItemType>::pop()
+ListNode<ItemType> *Stack<ItemType>::pop()
 {
     if (isEmpty())
         return nullptr;
 
-    StackNode *holder = top;
-    
-    top = top->next;
+    ListNode<ItemType> *holder = top;
+    top = top->getNext();
     count--;
+
     return holder;
 }
 
 template <typename ItemType>
-bool Stack<ItemType>::push(const ItemType &input)
+bool Stack<ItemType>::push(const ListNode<ItemType> &input)
 {
-    try
-    {
-        StackNode* newNode = new StackNode;
-    }
-    catch(std::bad_alloc &ba)
-    {
-        std::cerr << "Error while attempting to push item onto delete stack." << std::endl;
-        std::cerr << "Exception caught: " << ba.what() << std::endl;
-        return false;
-    }
-
-    newNode->item = input;
-    newNode->next = top;
-              top = newNode;
+    ListNode<ItemType> *newNode = input;
+    newNode->setNext(top);
+    top = newNode;
     count++;
 
     return true;

@@ -1,0 +1,33 @@
+---------------------
+Integration Purgatory
+---------------------
+
+    LinkedList<Country> coreDataList
+        (Sorted by primary key: country name)
+        1. Successful file read into list records.   [DONE]
+        2. Successful deletion of record.            
+        3. Successful restoration of record.         
+        4. Successful write of database to aux file. 
+
+    Stack<Country>      undoStack
+        (Not sorted, simply LIFO)
+        1. Push item removed from coreDataList
+        2. Pop item and return to coreDataList
+        3. Clear stack                                                            (for use after a file write)
+
+    BST<Country>        languageTree
+        (Sorted by secondary key: recognized language)
+        1. Successful construction from coreDataList elements after initial read.
+        2. Successful creation of links to new element added to coreDataList      (tied to coreDataList insertion)
+        3. Successful removal of links of relevant element                        (tied to coreDataList deletion call)
+        4. Successful print-out as an indented tree.
+
+    HashTable<Country>  nameTable
+        (Sorted by primary key: country name)
+        1. Successful construction from coreDataList elements after initial read.
+        2. Successful creation of links to new element added to coreDataList      (tied to coreDataList insertion)
+        3. Successful removal of links of relevant element                        (tied to coreDataList deletion call)
+        4. Resize and rehash when load factor reaches 75%
+
+    Easter Eggs
+        - Team Name Display [DONE]

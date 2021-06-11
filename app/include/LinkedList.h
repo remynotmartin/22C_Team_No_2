@@ -5,19 +5,14 @@
 #define LINKED_LIST_H
 
 #include<string>
+#include "ListNode.h" // For the unified ListNode class template
 
 template<class ItemType>
 class LinkedList
 {
 private:
-    struct Node
-    {
-        ItemType  item;
-        Node     *next;
-    };
-
-    Node *head;
-    int   length;
+    ListNode<ItemType> *head;
+    int                 length;
 
 public:
     LinkedList();  // constructor
@@ -35,9 +30,9 @@ public:
 template <class ItemType>
 LinkedList<ItemType>::LinkedList()
 {
-    head       = new Node;   // Sentinel Node
-    head->next = head;
-    length     = 0;
+    head = new ListNode<ItemType>; // Sentinel Node
+    head->setNext(head);           // Point at itself
+    length = 0;
 }
 
 // Implemented by Remy (during integration phase)
@@ -60,24 +55,24 @@ bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
     if (searchList(dataIn.getName(), durak))
         return false;
 
-    Node *newNode,
-         *pCur,
-         *pPre;
+    ListNode<ItemType> *newNode,
+                       *pCur,
+                       *pPre;
 
-    newNode       = new Node;
-    newNode->item = dataIn;
+    newNode       = new ListNode<ItemType>;
+    newNode->setItem(dataIn);
 
     pPre = head;        // Start pre at Sentinel Node
-    pCur = head->next;  // Start cur at "1st Node"
+    pCur = head->getNext();  // Start cur at "1st Node"
 
-    while (pCur != head && newNode->item > pCur->item)
+    while (pCur != head && newNode->getItem() > pCur->getItem())
     {
         pPre = pCur;
-        pCur = pCur->next;
+        pCur = pCur->getNext();
     }
     
-    pPre->next    = newNode;
-    newNode->next = pCur;
+    pPre->setNext(newNode);
+    newNode->setNext(pCur);
 
     
     length++;
@@ -87,22 +82,23 @@ bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
 template <class ItemType>
 bool LinkedList<ItemType>::deleteNode(const std::string &target)
 {
-    Node *pCur;
-    Node *pPre;
-    bool  deleted = false;
+    ListNode<ItemType> *pCur,
+                       *pPre;
+
+    bool deleted = false;
     
     pPre = head;
-    pCur = head->next;
+    pCur = head->getNext();
 
-    while (pCur != NULL && pCur->item < target)
+    while (pCur != NULL && pCur->getItem() < target)
     {
         pPre = pCur;
-        pCur = pCur->next;
+        pCur = pCur->getNext();
     }
     
-    if (pCur && pCur->item == target)
+    if (pCur && pCur->getItem() == target)
     {
-        pPre->next = pCur->next;
+        pPre->setNext(pCur->getNext());
         delete pCur;
         deleted = true;
         length--;
@@ -113,19 +109,19 @@ bool LinkedList<ItemType>::deleteNode(const std::string &target)
 template <class ItemType>
 bool LinkedList<ItemType>::searchList(const std::string &target, ItemType &dataOut) const
 {
-    bool  found = false;
-    Node *pCur;
+    bool found = false;
+    ListNode<ItemType> *pCur;
        
-    pCur = head->next;
-    while (pCur != head && pCur->item < target)
+    pCur = head->getNext();
+    while (pCur != head && pCur->getItem() < target)
     {
-        pCur = pCur->next;
+        pCur = pCur->getNext();
     }
     
-    if (pCur->item == target)
+    if (pCur->getItem() == target)
     {
-        dataOut = pCur->item;
-        found = true;
+        dataOut = pCur->getItem();
+        found   = true;
     }
 
     return found;
@@ -139,15 +135,15 @@ bool LinkedList<ItemType>::searchList(const std::string &target, ItemType &dataO
 template <class ItemType>
 void LinkedList<ItemType>::displayList() const
 {
-    Node     *wanderer = head->next; // Skip past the sentinel node
-    unsigned itemCount = 1u;
+    ListNode<ItemType> *wanderer  = head->getNext(); // Skip past the sentinel node
+    unsigned            itemCount = 1u;
 
     while (wanderer != head)
     {
         std::cout << std::endl;
         std::cout << "Item: " << itemCount << std::endl;
-        std::cout << wanderer->item;
-        wanderer = wanderer->next;
+        std::cout << wanderer->getItem();
+        wanderer = wanderer->getNext();
         itemCount++;
     }
 }
