@@ -25,6 +25,7 @@ public:
     ListNode<ItemType> *searchList  (const std::string&) const;
     bool                prependList (const ItemType&);
     ListNode<ItemType> *removeItem  (const std::string &target);
+    void                reinsert    (ListNode<ItemType> *restoredItem);
 };
 
 template <class ItemType>
@@ -146,6 +147,29 @@ void LinkedList<ItemType>::displayList() const
         wanderer = wanderer->getNext();
         itemCount++;
     }
+}
+
+// Implemented by Remy during the integration phase
+// of this project. Needed to undo a deletion.
+//
+// reinsert() takes a ListNode<ItemType> from the undoStack
+// and reconnects it into the data list.
+//
+template <class ItemType>
+void LinkedList<ItemType>::reinsert(ListNode<ItemType> *restoredNode)
+{
+    ListNode<ItemType> *pPre    = head,
+                       *pInsert = head->getNext();
+    while (pInsert != head && pInsert->getItem() < restoredNode->getItem())
+    {
+        pPre    = pInsert;
+        pInsert = pInsert->getNext();
+    }
+
+    // Position found, reconnect the node
+    restoredNode->setNext(pInsert);
+    pPre->setNext(restoredNode);
+    length++;
 }
 
 #endif

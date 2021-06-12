@@ -24,6 +24,7 @@ bool fileRead     (LinkedList<Country> &coreDataList);
 void teamNames    ();
 void removeData   (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
 void addData      (LinkedList<Country> &coreDataList);
+void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList);
 
 // These paths assume program is run from project root.
 const std::string  inputFilename = "./data/primaryData.csv";
@@ -43,6 +44,7 @@ int main()
     mainMenu();
     while (userChoice != 0)
     {
+        std::cout << std::endl;
         std::cout << "[Type '9' to display menu options again.]" << std::endl;
         std::cout << "Please select an option from the menu: ";
         std::cin >> userChoice;
@@ -54,6 +56,9 @@ int main()
                 break;
             case 2: // Delete Data
                 removeData(coreDataList, undoStack);
+                break;
+            case 8:
+                undoRemove(undoStack, coreDataList);
                 break;
             case 9: // Display Main Menu
                 mainMenu();
@@ -112,6 +117,7 @@ void mainMenu()
     std::cout << "5. List countries by language" << std::endl; // Print inOrder traversal of the BST
     std::cout << "6. Write data to file"         << std::endl; // More File I/O baby.
     std::cout << "7. Hash Table Statistics"      << std::endl; // Print # of collisions, longest collision list, load factor, etc.
+    std::cout << "8. Undo Deletion"              << std::endl;
     std::cout << "9. Display Menu"               << std::endl; // Show this menu once after start, then only upon request.
 
     std::cout << "99. Print coreDataList (testing)" << std::endl;
@@ -207,41 +213,35 @@ void addData (LinkedList<Country> &coreDataList)
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, nameIn);
-    std::cout << "Okay, you want to add [" << nameIn << "] to the database. (DEBUG)" << std::endl;
 
     std::cout << "What is the capital of " << nameIn << "? ";
     std::cin.clear();
     std::getline(std::cin, captIn);
-    std::cout << "Okay, the capital of " << nameIn << " is [" << captIn << "]. (DEBUG)" << std::endl;
 
     std::cout << "What is one of the recognized languages of this country? ";
     std::cin.clear();
     std::getline(std::cin, langIn);
-    std::cout << "Okay, so they speak [" << langIn << "] in " << nameIn << ", eh? (DEBUG)" << std::endl;
 
     std::cout << "What is the major religion in this country? ";
     std::cin.clear();
     std::getline(std::cin, relgIn);
-    std::cout << "Okay, so [" << relgIn << "] is the dominant religion in " << nameIn << ", eh? (DEBUG)" << std::endl;
-
 
     std::cout << "How many people live in " << nameIn << "? ";
     std::cin.clear();
     std::cin >> popIn;
-    std::cout << "Okay, so [" << popIn << "] people live in " << nameIn << ". (DEBUG)" << std::endl;
 
     std::cout << "What is the annual GDP of " << nameIn << " in USD? ";
     std::cin.clear();
     std::cin >> gdpIn;
-    std::cout << "Okay, so " << nameIn << " has an annual GDP of [$" << gdpIn << " USD]. (DEBUG)" << std::endl;
 
     std::cout << "What is the surface area of " << nameIn << "? ";
     std::cin.clear();
     std::cin >> areaIn;
-    std::cout << "Okay, so " << nameIn << " has surface area of [" << areaIn << "] square kilometres. (DEBUG)" << std::endl;
 
     Country temp(nameIn, langIn, popIn, relgIn, gdpIn, areaIn, captIn); 
     coreDataList.insertNode(temp);
+
+    std::cout << "Okay, " << nameIn << " has been added to the database.\n" << std::endl;
 }
 
 // Removes item from coreDataList and places it onto the undoStack.
@@ -269,6 +269,20 @@ void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
 }
 
 
+// Pops latest removed item from the undoStack, and reinserts it into the coreDataList,
+// and will call upon the BST and Hash Table functions to reestablish links.
+//
+void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
+{
+    ListNode<Country> *dataPtr = undoStack.pop();
+    if (!dataPtr) // dataPtr == nullptr, so undo stack was empty.
+    {
+        std::cout << "The undo stack is empty!" << std::endl;
+        return;
+    }
+    coreDataList.reinsert(dataPtr);
+    std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
+}
 
 
 

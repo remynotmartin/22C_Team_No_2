@@ -67,6 +67,7 @@ bool Stack<ItemType>::clear()
     {
         durak = pop();
         delete durak;
+        count--;
     }
     return true;
 }
