@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
+#include <limits>
 
 #include "LinkedList.h"
 #include "Country.h"
@@ -22,6 +23,7 @@ void mainMenu     ();
 bool fileRead     (LinkedList<Country> &coreDataList);
 void teamNames    ();
 void removeData   (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
+void addData      (LinkedList<Country> &coreDataList);
 
 // These paths assume program is run from project root.
 const std::string  inputFilename = "./data/primaryData.csv";
@@ -48,7 +50,8 @@ int main()
         switch (userChoice)
         {
             case 1: // Add new Data
-                //addData(coreDataList); // Function not ready yet
+                addData(coreDataList);
+                break;
             case 2: // Delete Data
                 removeData(coreDataList, undoStack);
                 break;
@@ -183,6 +186,62 @@ bool fileRead(LinkedList<Country> &coreDataList)
     inputFile.close();
 
     return true;
+}
+
+// Adds data to the coreDataList, which will in turn be linked to by the BST
+// and Hash Tables later on as they're implemented.
+//
+void addData (LinkedList<Country> &coreDataList)
+{
+    // Buffer variables
+    std::string nameIn(""),
+                langIn(""),
+                relgIn(""),
+                captIn("");
+    unsigned    popIn  = 0u;
+    double      gdpIn  = 0.0,
+                areaIn = 0.0;
+
+
+    std::cout << "What is the name of the country you want to add to the database? ";
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, nameIn);
+    std::cout << "Okay, you want to add [" << nameIn << "] to the database. (DEBUG)" << std::endl;
+
+    std::cout << "What is the capital of " << nameIn << "? ";
+    std::cin.clear();
+    std::getline(std::cin, captIn);
+    std::cout << "Okay, the capital of " << nameIn << " is [" << captIn << "]. (DEBUG)" << std::endl;
+
+    std::cout << "What is one of the recognized languages of this country? ";
+    std::cin.clear();
+    std::getline(std::cin, langIn);
+    std::cout << "Okay, so they speak [" << langIn << "] in " << nameIn << ", eh? (DEBUG)" << std::endl;
+
+    std::cout << "What is the major religion in this country? ";
+    std::cin.clear();
+    std::getline(std::cin, relgIn);
+    std::cout << "Okay, so [" << relgIn << "] is the dominant religion in " << nameIn << ", eh? (DEBUG)" << std::endl;
+
+
+    std::cout << "How many people live in " << nameIn << "? ";
+    std::cin.clear();
+    std::cin >> popIn;
+    std::cout << "Okay, so [" << popIn << "] people live in " << nameIn << ". (DEBUG)" << std::endl;
+
+    std::cout << "What is the annual GDP of " << nameIn << " in USD? ";
+    std::cin.clear();
+    std::cin >> gdpIn;
+    std::cout << "Okay, so " << nameIn << " has an annual GDP of [$" << gdpIn << " USD]. (DEBUG)" << std::endl;
+
+    std::cout << "What is the surface area of " << nameIn << "? ";
+    std::cin.clear();
+    std::cin >> areaIn;
+    std::cout << "Okay, so " << nameIn << " has surface area of [" << areaIn << "] square kilometres. (DEBUG)" << std::endl;
+
+    Country temp(nameIn, langIn, popIn, relgIn, gdpIn, areaIn, captIn); 
+    coreDataList.insertNode(temp);
 }
 
 // Removes item from coreDataList and places it onto the undoStack.

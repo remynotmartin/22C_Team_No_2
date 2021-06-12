@@ -22,7 +22,7 @@ private:
     
 public:
     Country(): name{""}, language{""}, population{0}, majorReligion{""}, GDP{-1}, surfaceArea{-1}, capitalCity{""} {}
-    Country(string, string, unsigned, string, double, double, string);
+    Country(string name, string lang, unsigned population, string religion, double gdp, double area, string capital);
     ~Country() {}
     
     // Setters and getters
