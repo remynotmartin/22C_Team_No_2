@@ -4,15 +4,15 @@ Integration Purgatory
 
     LinkedList<Country> coreDataList
         (Sorted by primary key: country name)
-        1. Successful file read into list records.   [DONE]
-        2. Successful deletion of record.            
-        3. Successful restoration of record.         
+        1. Successful file read into list records.    [DONE]
+        2. Successful deletion of record.             [DONE] 
+        3. Successful restoration of record.          [DONE]
         4. Successful write of database to aux file. 
 
     Stack<Country>      undoStack
         (Not sorted, simply LIFO)
-        1. Push item removed from coreDataList
-        2. Pop item and return to coreDataList
+        1. Push item removed from coreDataList        [DONE]
+        2. Pop item and return to coreDataList        [DONE]
         3. Clear stack                                                            (for use after a file write)
 
     BST<Country>        languageTree
@@ -30,4 +30,4 @@ Integration Purgatory
         4. Resize and rehash when load factor reaches 75%
 
     Easter Eggs
-        - Team Name Display [DONE]
+        - Team Name Display                           [DONE]
