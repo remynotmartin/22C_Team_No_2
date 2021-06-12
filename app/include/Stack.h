@@ -30,7 +30,7 @@ public:
     unsigned   getCount () const { return count; }
 
     ListNode<ItemType> *pop      ();
-    bool                push     (const ListNode<ItemType> &);
+    void                push     (ListNode<ItemType> *inputDataPtr);
     bool                clear    ();
 };
 
@@ -85,14 +85,12 @@ ListNode<ItemType> *Stack<ItemType>::pop()
 }
 
 template <typename ItemType>
-bool Stack<ItemType>::push(const ListNode<ItemType> &input)
+void Stack<ItemType>::push(ListNode<ItemType> *input)
 {
     ListNode<ItemType> *newNode = input;
     newNode->setNext(top);
     top = newNode;
     count++;
-
-    return true;
 }
 
 #endif

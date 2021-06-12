@@ -52,9 +52,6 @@ int main()
             case 2: // Delete Data
                 removeData(coreDataList, undoStack);
                 break;
-            case 8: // Testing: Display coreDataList
-                coreDataList.displayList();
-                break;
             case 9: // Display Main Menu
                 mainMenu();
                 break;
@@ -63,6 +60,9 @@ int main()
                 break;
             case 42: // Display group member names (Hidden option)
                 teamNames();
+                break;
+            case 99: // Testing: Display coreDataList
+                coreDataList.displayList();
                 break;
             default:
                 std::cout << "Invalid input detected. Please try again." << std::endl;
@@ -109,9 +109,9 @@ void mainMenu()
     std::cout << "5. List countries by language" << std::endl; // Print inOrder traversal of the BST
     std::cout << "6. Write data to file"         << std::endl; // More File I/O baby.
     std::cout << "7. Hash Table Statistics"      << std::endl; // Print # of collisions, longest collision list, load factor, etc.
-    std::cout << "8. Print coreDataList (testing)" << std::endl;
-
     std::cout << "9. Display Menu"               << std::endl; // Show this menu once after start, then only upon request.
+
+    std::cout << "99. Print coreDataList (testing)" << std::endl;
     std::cout << "0. Exit"                       << std::endl << std::endl;
 }
 
@@ -149,6 +149,12 @@ bool fileRead(LinkedList<Country> &coreDataList)
         std::getline(inputFile, lineBuffer);
         if (inputFile.eof()) break;
 
+        // INPUT FILE RECORD FORMAT:
+        //
+        // countryName,language,population,majorReligion,GDP,surfaceArea,capitalCity
+        //
+        // (total of 6 delimiting commas)
+        
         // Grab all delimiter positions
         size_t comma_1 = lineBuffer.find(',', 0),
                comma_2 = lineBuffer.find(',', comma_1 + 1),
@@ -179,12 +185,31 @@ bool fileRead(LinkedList<Country> &coreDataList)
     return true;
 }
 
+// Removes item from coreDataList and places it onto the undoStack.
+// Will also call BST and HashTable's respective functions to break the links
+// to their respective indirect nodes.
+//
+// Menu OPCODE: 2
+//
 void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
 {
     std::string query("");
     std::cout << "Please input the name of the country you want to remove: ";
-    std::cin.ignore(256, '\n');
-    std::cin >> query;
-    std::cout << "Okay, so you want to remove: [" << query << "] from this database." << std::endl;
-    std::cout << "Function will proceed as construction progresses...\n";
+    std::cin.ignore();
+    std::getline(std::cin, query);
+    //
+    ListNode<Country> *holder = coreDataList.removeItem(query);
+    if (!holder) // Holder == nullptr;
+    {
+        std::cout << query << " was not found in the database." << std::endl;
+        return;
+    }
+
+    undoStack.push(holder); // Push removed item onto stack
+    std::cout <<  query << " was removed from the database." << std::endl;
 }
+
+
+
+
+

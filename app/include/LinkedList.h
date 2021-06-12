@@ -19,12 +19,12 @@ public:
     ~LinkedList(); // destructor
 
     // Linked list operations
-    int  getLength   ()                               const {return length;}
-    bool insertNode  (const ItemType&);
-    bool deleteNode  (const std::string&);
-    void displayList ()                               const;
-    bool searchList  (const std::string&, ItemType &) const;
-    bool prependList (const ItemType&);
+    int                 getLength   ()                               const {return length;}
+    bool                insertNode  (const ItemType&);
+    void                displayList ()                               const;
+    ListNode<ItemType> *searchList  (const std::string&) const;
+    bool                prependList (const ItemType&);
+    ListNode<ItemType> *removeItem  (const std::string &target);
 };
 
 template <class ItemType>
@@ -50,9 +50,8 @@ LinkedList<ItemType>::~LinkedList()
 template <class ItemType>
 bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
 {
-    ItemType durak; 
-    // Search list first to ensure primary key doesn't already exist
-    if (searchList(dataIn.getName(), durak))
+    // Search list first to ensure primary key doesn't already exist in the database
+    if (searchList(dataIn.getName()) != nullptr)
         return false;
 
     ListNode<ItemType> *newNode,
@@ -62,7 +61,7 @@ bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
     newNode       = new ListNode<ItemType>;
     newNode->setItem(dataIn);
 
-    pPre = head;        // Start pre at Sentinel Node
+    pPre = head;             // Start pre at Sentinel Node
     pCur = head->getNext();  // Start cur at "1st Node"
 
     while (pCur != head && newNode->getItem() > pCur->getItem())
@@ -79,52 +78,53 @@ bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
     return true;
 }
 
+// Implemented by Remy during integration phase
+//
+// removeItem() is meant to work by disconnecting a node from the coreDataList,
+// and then passing it back to the caller to manage the node, rather than deleting
+// the matching data node outright.
+//
 template <class ItemType>
-bool LinkedList<ItemType>::deleteNode(const std::string &target)
+ListNode<ItemType> *LinkedList<ItemType>::removeItem(const std::string &target)
 {
-    ListNode<ItemType> *pCur,
-                       *pPre;
-
-    bool deleted = false;
-    
-    pPre = head;
-    pCur = head->getNext();
-
-    while (pCur != NULL && pCur->getItem() < target)
+    ListNode<ItemType> *dataPre = head, 
+                       *dataPtr = head->getNext();
+    while (dataPtr != head && dataPtr->getItem() < target)
     {
-        pPre = pCur;
-        pCur = pCur->getNext();
+        dataPre = dataPtr;
+        dataPtr = dataPtr->getNext();
     }
-    
-    if (pCur && pCur->getItem() == target)
+
+    if (dataPtr->getItem() == target)
     {
-        pPre->setNext(pCur->getNext());
-        delete pCur;
-        deleted = true;
+        dataPre->setNext(dataPtr->getNext()); // Patch previous node to next
+        dataPtr->setNext(nullptr);            // Disconnect data from list
         length--;
+        return dataPtr;
     }
-    return deleted;
+    
+    return nullptr; // Item was not found in database.
+
 }
 
+// The SearchList() function queries the list for an item which has an attribute
+// (usually the primary key) that matches the queried target.
+// The function then returns a pointer to the item, if found.
+// Otherwise, it returns nullptr.
+//
 template <class ItemType>
-bool LinkedList<ItemType>::searchList(const std::string &target, ItemType &dataOut) const
+ListNode<ItemType> *LinkedList<ItemType>::searchList(const std::string &target) const
 {
-    bool found = false;
     ListNode<ItemType> *pCur;
        
     pCur = head->getNext();
     while (pCur != head && pCur->getItem() < target)
-    {
         pCur = pCur->getNext();
-    }
     
     if (pCur->getItem() == target)
-    {
-        dataOut = pCur->getItem();
-        found   = true;
-    }
+        return pCur;
 
-    return found;
+    return nullptr;
 }
 
 
