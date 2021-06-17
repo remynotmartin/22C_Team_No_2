@@ -88,7 +88,7 @@ void BinarySearchTree<ItemType>::insertBST(const ListNode<ItemType> *newEntry, u
 template<class ItemType>
 bool BinarySearchTree<ItemType>::removeBST(const ListNode<ItemType> *targetNode)
 {
-    bool removeSuccess = _remove(rootPtr, target);
+    bool removeSuccess = _remove(rootPtr, targetNode);
     if (removeSuccess)
         count--;
     return result;
@@ -200,9 +200,8 @@ BinaryNode<ItemType>* BinarySearchTree<ItemType>::_search (BinaryNode<ItemType> 
                                                            unsigned              compare (const ItemType &lhs, const ItemType &rhs)) const
 {
     if (!subTreeRoot) // subTreeRoot == nullptr
-    {
         return subTreeRoot;
-    }
+
     unsigned compResult = compare(target, subTreeRoot->getItem());
 
     if      (compResult == 2)
