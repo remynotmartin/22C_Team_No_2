@@ -20,11 +20,10 @@ public:
 
     // Linked list operations
     unsigned            getLength   ()                               const {return length;}
-    bool                insertNode  (const ItemType&);
-    void                displayList ()                               const;
+    bool                insert      (ListNode<ItemType> *inputDataNode);
     ListNode<ItemType> *searchList  (const std::string&)             const;
     ListNode<ItemType> *removeItem  (const std::string &target);
-    void                reinsert    (ListNode<ItemType> *restoredItem); // Used by the undoStack
+    void                displayList ()                               const;
 };
 
 template <class ItemType>
@@ -57,32 +56,29 @@ LinkedList<ItemType>::~LinkedList()
 // Notes by Remy (during integration phase)
 // - return type changed from void to bool
 // - I called a search on the list to check if the primary key (country name) already exists
+// - Changed argument type from ItemType to ListNode<ItemType>* to make it easier to reinsert
+//   nodes from the undoStack.
 template <class ItemType>
-bool LinkedList<ItemType>::insertNode(const ItemType &dataIn)
+bool LinkedList<ItemType>::insert(ListNode<ItemType> *inputDataNode)
 {
     // Search list first to ensure primary key doesn't already exist in the database
-    if (searchList(dataIn.getName()) != nullptr)
+    if (searchList(inputDataNode->getItem().getName()) != nullptr)
         return false;
-
-    ListNode<ItemType> *newNode,
-                       *pCur,
+    
+    ListNode<ItemType> *pCur,
                        *pPre;
-
-    newNode       = new ListNode<ItemType>;
-    newNode->setItem(dataIn);
 
     pPre = head;             // Start pre at Sentinel Node
     pCur = head->getNext();  // Start cur at "1st Node"
 
-    while (pCur != head && newNode->getItem() > pCur->getItem())
+    while (pCur != head && inputDataNode->getItem() > pCur->getItem())
     {
         pPre = pCur;
         pCur = pCur->getNext();
     }
     
     pPre->setNext(newNode);
-    newNode->setNext(pCur);
-
+    inputDataNode->setNext(pCur);
     
     length++;
     return true;
@@ -156,29 +152,6 @@ void LinkedList<ItemType>::displayList() const
         wanderer = wanderer->getNext();
         itemCount++;
     }
-}
-
-// Implemented by Remy during the integration phase
-// of this project. Needed to undo a deletion.
-//
-// reinsert() takes a ListNode<ItemType> from the undoStack
-// and reconnects it into the data list.
-//
-template <class ItemType>
-void LinkedList<ItemType>::reinsert(ListNode<ItemType> *restoredNode)
-{
-    ListNode<ItemType> *pPre    = head,
-                       *pInsert = head->getNext();
-    while (pInsert != head && pInsert->getItem() < restoredNode->getItem())
-    {
-        pPre    = pInsert;
-        pInsert = pInsert->getNext();
-    }
-
-    // Position found, reconnect the node
-    restoredNode->setNext(pInsert);
-    pPre->setNext(restoredNode);
-    length++;
 }
 
 #endif

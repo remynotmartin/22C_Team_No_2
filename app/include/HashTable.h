@@ -5,8 +5,9 @@
 #define HASHTABLE_H_
 
 #include <string> // Needed by the _hash() function
-#include "LinkedList.h"
 #include "ListNode.h"
+
+#include "HashBucket.h" // Inherits from LinkedList
 
 using std::string;
 
@@ -14,9 +15,9 @@ template<class ItemType>
 class HashTable
 {
 private:
-    LinkedList<HashNode<ItemType>> *hashAry;
-    unsigned                        hashSize;
-    unsigned                        count;
+    HashBucket<ItemType> *hashAry;
+    unsigned              hashSize;
+    unsigned              count;    // Total # of items in the hash table.
     
 public:
     HashTable  ()      { count = 0; hashSize = 47; hashAry = new LinkedList<HashNode<ItemType>>[hashSize]; }
@@ -54,19 +55,19 @@ private:
 // Added by Remy during integration phase.
 //
 template<class ItemType>
-double   HashTable<ItemType>::getSpaceUtil() const
+double HashTable<ItemType>::getSpaceUtil() const
 {
     unsigned usedBuckets = 0u;
     for (unsigned i = 0u; i< hashSize; i++)
     {
-        if (hashAry[i].getCount > 0)
+        if (hashAry[i].getLength() > 0)
             usedBuckets++;
     }
     return 100.00 * usedBuckets / hashSize;
 }
 
-// This function goes through the HashTable's buckets and reads the count of each list,
-// returning the count of the longest chain.
+// This function goes through the HashTable's buckets and reads the length of each bucket,
+// returning the length of the longest chain.
 // Added by Remy during integration phase.
 //
 template<class ItemType>
@@ -75,8 +76,8 @@ unsigned HashTable<ItemType>::getLongestChain() const
     unsigned longest = 0u;
     for (unsigned i = 0u; i < hashSize; i++)
     {
-        if (hashAry[i].getCount() > longest)
-            longest = hashAry[i].getCount();
+        if (hashAry[i].getLength() > longest)
+            longest = hashAry[i].getLength();
     }
     return longest;
 }
@@ -107,12 +108,14 @@ bool HashTable<ItemType>::insert(ListNode<ItemType> *itemPtr)
     // Grab item from the item pointer, then extract its name
     string   key    = itemPtr->getItem().getName();
     unsigned bucket = _hash(key);
+
+    // Allocate new HashNode<ItemType>
+    HashNode<ItemType> *newItemNode = new HashNode<ItemType>(itemPtr);
     
     if (!search(key))
     {
-        HashNode<ItemType> *newHashNode = new HashNode<ItemType>(itemPtr);
-        hashAry[bucket].insertNode(newHashNode);
-        count++;
+        hashAry[bucket].insertItem(newItemNode);
+        count++; // Increment table's overall count, not the bucket's
         return true;
     }
     
@@ -129,10 +132,10 @@ template<class ItemType>
 bool HashTable<ItemType>::remove(ListNode<ItemType> *itemOut, const string &key)
 {
     ListNode<ItemType> *holder = hashAry[_hash(key)].removeItem(key);
-    if(holder)
+    if (holder)
     {
         delete holder;
-        count--;
+        count--; // Decrement table's overall count, not the bucket's
         return true;
     }
     return false;
@@ -146,12 +149,7 @@ bool HashTable<ItemType>::remove(ListNode<ItemType> *itemOut, const string &key)
 template<class ItemType>
 HashNode<ItemType>* HashTable<ItemType>::search(const string &key)
 {
-    /* The HashNode meta-node class has a wrapper for ListNode<ItemType>'s getItem() function,
-     * so we should be able to use the LinkedList class template's searchList() function.
-     * It returns a pointer to the HashNode meta-node containing the queried data, if it exists
-     * in the coreDataList, and by extension, in the queried bucket (linked list) in the hashAry.
-     */
-    return hashAry[_hash(key)].searchList(key);
+    return hashAry[_hash(key)].searchItem(key);
 }
 
 

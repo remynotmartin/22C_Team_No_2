@@ -21,11 +21,11 @@
 
 void splashScreen ();
 void mainMenu     ();
-bool fileRead     (LinkedList<Country> &coreDataList);
 void teamNames    ();
-void removeData   (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
-void addData      (LinkedList<Country> &coreDataList);
-void searchList   (LinkedList<Country> &coreDataList);
+bool fileRead     (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&);
+void removeData   (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&, Stack<Country>&);
+void addData      (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&);
+void searchName   (HashTable<Country>&);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList);
 
 // These paths assume program is run from project root.
@@ -47,7 +47,7 @@ int main()
     BinarySearchTree<Country> langTree;
 
     // Read primary input data
-    if (!fileRead(coreDataList))
+    if (!fileRead(coreDataList, nameTable, langTree))
         return 1;
 
     int userChoice = -1; 
@@ -62,13 +62,21 @@ int main()
         switch (userChoice)
         {
             case 1: // Add new Data
-                addData(coreDataList);
+                addData(coreDataList, nameTable, langTree);
                 break;
             case 2: // Delete Data
-                removeData(coreDataList, undoStack);
+                removeData(coreDataList, nameTable, langTree, undoStack);
                 break;
-            case 3:
-                searchList(coreDataList);
+            case 3: // Search by country name (use the hash table)
+                searchName(nameTable);
+                break;
+            case 4: // Search by language (use the BST)
+                break;
+            case 5: // List countries by language (use BST in-order traversal)
+                break;
+            case 6: // Write Data to File
+                break;
+            case 7: // Output Hash Table Statistics
                 break;
             case 8:
                 undoRemove(undoStack, coreDataList);
@@ -79,12 +87,14 @@ int main()
             case 0:
                 std::cout << "Terminating program..." << std::endl;
                 break;
+
             case 42: // Display group member names (Hidden option)
                 teamNames();
                 break;
-            case 99: // Testing: Display coreDataList
+            case 99: // DEBUG: Display coreDataList
                 coreDataList.displayList();
                 break;
+
             default:
                 std::cout << "Invalid input detected. Please try again." << std::endl;
         }
@@ -137,6 +147,7 @@ void mainMenu()
     std::cout << "0. Exit"                       << std::endl << std::endl;
 }
 
+
 // Little easter egg as per project requirements.
 // Menu Option: 42
 void teamNames()
@@ -151,11 +162,12 @@ void teamNames()
     std::cout << "##########################################" << std::endl;
 }
 
+
 // Reads in data from the primaryData.csv input file.
 // File to be read is currently hard-coded, but could relatively easily
 // be changed to accept a filename from a user.
 //
-bool fileRead(LinkedList<Country> &coreDataList)
+bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree)
 {
     std::ifstream inputFile(inputFilename);
     if (!inputFile) // Failure to open standard input file
@@ -186,21 +198,28 @@ bool fileRead(LinkedList<Country> &coreDataList)
                comma_6 = lineBuffer.find(',', comma_5 + 1);
 
         std::string name       = lineBuffer.substr(0, comma_1),
-                    language   = lineBuffer.substr(comma_1  + 1, comma_2 - comma_1 - 1),
-                    religion   = lineBuffer.substr(comma_3  + 1, comma_4 - comma_3 - 1),
-                    capital    = lineBuffer.substr(comma_6  + 1);
+                    language   = lineBuffer.substr(comma_1 + 1, comma_2 - comma_1 - 1),
+                    religion   = lineBuffer.substr(comma_3 + 1, comma_4 - comma_3 - 1),
+                    capital    = lineBuffer.substr(comma_6 + 1);
         unsigned    population = std::stoul(lineBuffer.substr(comma_2 + 1, comma_3 - comma_2 - 1));
-        double      GDP        = std::stod(lineBuffer.substr(comma_4 + 1, comma_5 - comma_4 - 1)),
-                    area       = std::stod(lineBuffer.substr(comma_5 + 1, comma_6 - comma_5 - 1));
+        double      GDP        = std::stod (lineBuffer.substr(comma_4 + 1, comma_5 - comma_4 - 1)),
+                    area       = std::stod (lineBuffer.substr(comma_5 + 1, comma_6 - comma_5 - 1));
 
         Country temp(name, language, population, religion, GDP, area, capital);
+        ListNode<Country> newDataNode = new ListNode<Country>(temp, nullptr);
         
         // Insert into coreDataList
-        if (!coreDataList.insertNode(temp))
+        if (!coreDataList.insert(newDataNode))
         {
             std::cerr << "Duplicate primary key found in file " << inputFilename << "!" << std::endl;
             std::cerr << "Duplicate record "<< temp.getName() << " has been rejected, but file read will continue." << std::endl;
+
+            // Memory leaks make Mr. Bentley an unhappy camper!
+            // Record was rejected, so since we allocated a node for this record, we need to clean it up.
+            delete newDataNode; 
         }
+        else if (!nameTable.insert(newDataNode);
+        langTree.insertBST(newDataNode);
     }
     inputFile.close();
 
@@ -256,8 +275,11 @@ void addData (LinkedList<Country> &coreDataList)
     std::cin.clear();
     std::cin >> areaIn;
 
-    Country temp(nameIn, langIn, popIn, relgIn, gdpIn, areaIn, captIn); 
-    coreDataList.insertNode(temp);
+    Country tempObj(nameIn, langIn, popIn, relgIn, gdpIn, areaIn, captIn); 
+
+    ListNode<Country>* newDataNode = new ListNode<Country>(tempObj, nullptr);
+
+    coreDataList.insert(newDataNode);
 
     std::cout << "Okay, " << nameIn << " has been added to the database.\n" << std::endl;
 }
@@ -283,7 +305,7 @@ void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
     }
 
     undoStack.push(holder); // Push removed item onto stack
-    std::cout <<  query << " was removed from the database." << std::endl;
+    std::cout << query << " was removed from the database." << std::endl;
 }
 
 
@@ -312,10 +334,10 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
     ListNode<Country> *dataPtr = undoStack.pop();
     if (!dataPtr) // dataPtr == nullptr, so undo stack was empty.
     {
-        std::cout << "The undo stack is empty!" << std::endl;
+        std::cout << "The deletion stack is empty!" << std::endl;
         return;
     }
-    coreDataList.reinsert(dataPtr);
+    coreDataList.insert(dataPtr);
     std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
 }
 
@@ -339,12 +361,8 @@ unsigned compareLang(const Country &lhs, const Country &rhs)
 }
 
 
-void visitBST_Node (const BinaryNode<ItemType> *nodePtr)
-{
-    std::cout << nodePtr->getItem() << std::endl;
-}
-
-
+// This visit function enables the BST to print out with indents based on a node's level.
+//
 void visitBST_Node_indent (const BinaryNode<ItemType> *nodePtr, const unsigned level)
 {
     void levelIndent(const unsigned level)

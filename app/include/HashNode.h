@@ -20,14 +20,14 @@ private:
     HashNode<ItemType> *next;
 
 public:
-    HashNode  ()                                                             { dataPtr = nullptr; next = nullptr; }
-    HashNode  (ListNode<ItemType> itemPtr)                                   { dataPtr = itemPtr; next = nullptr; }
-    HashNode  (ListNode<ItemType> itemPtr, HashNode<ItemType>* nextHashNode) { dataPtr = itemPtr; next = nextHashNode; }
+    HashNode  ()                                                              { dataPtr = nullptr; next = nullptr; }
+    HashNode  (ListNode<ItemType> *itemPtr)                                   { dataPtr = itemPtr; next = nullptr; }
+    HashNode  (ListNode<ItemType> *itemPtr, HashNode<ItemType> *nextHashNode) { dataPtr = itemPtr; next = nextHashNode; }
     ~HashNode () {}
     
     // setters
-    void setDataPtr (ListNode<ItemType>* dataNodePtr)  { dataPtr = dataNodePtr; }
-    void setNext    (HashNode<ItemType>* nextHashNode) { next = nextHashNode; }
+    void setDataPtr (ListNode<ItemType> *dataNodePtr)  { dataPtr = dataNodePtr; }
+    void setNext    (HashNode<ItemType> *nextHashNode) { next = nextHashNode; }
     
     // getters
     ItemType            getItem    () const { return dataPtr->getItem(); } // Wrapper for ListNode<ItemType>'s getItem()

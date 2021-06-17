@@ -29,10 +29,10 @@ public:
     void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) const { _printTree(visit, rootPtr, 1); }
     
     // insert a node at the correct location
-    bool insertBST    (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
+    bool insertBST (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
 
     // remove a node if found
-    bool removeBST    (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
+    bool removeBST (const ListNode<ItemType> *targetPtr, unsigned compare(const ItemType&, const ItemType&));
 
     // find a target node
     BinaryNode<ItemType>* searchBST (const ItemType &target, unsigned compare(const ItemType&, const ItemType&)) const;
@@ -53,7 +53,7 @@ private:
     BinaryNode<ItemType>* _search (BinaryNode<ItemType> *treePtr, const ItemType &target, unsigned compare()) const;
     
     // internal remove node: locate and delete target node under nodePtr subtree
-    void _remove (BinaryNode<ItemType> *nodePtr, const ItemType target, bool &success);
+    bool _remove (BinaryNode<ItemType> *targetNode, unsigned compare(const ItemType&, const ItemType&));
     
      // delete target node from tree, called by internal remove node
     void _removeNode (BinaryNode<ItemType>* targetNodePtr);
@@ -86,12 +86,14 @@ void BinarySearchTree<ItemType>::insertBST(const ListNode<ItemType> *newEntry, u
 // - if found, it copies data from that node and sends it back to the caller
 //   via the output parameter, and returns true, otherwise it returns false.
 template<class ItemType>
-bool BinarySearchTree<ItemType>::removeBST(const ItemType &item)
+bool BinarySearchTree<ItemType>::removeBST(const ListNode<ItemType> *targetNode)
 {
-    bool isSuccess = false;
-    rootPtr = _remove(rootPtr, item, isSuccess);
-    return isSuccess;
+    bool removeSuccess = _remove(rootPtr, target);
+    if (removeSuccess)
+        count--;
+    return result;
 }
+
 
 /* [Remy's Notes from Integration Purgatory]
  *   - Changed return type from bool to BinaryNode<ItemType>* and adjusted logic
@@ -107,6 +109,7 @@ BinaryNode<ItemType>* BinarySearchTree<ItemType>::searchBST(const ItemType &targ
 
 
 // Recursively destroys the entire tree.
+//
 template<class ItemType>
 void BinarySearchTree<ItemType>::destroyBST(BinaryNode<ItemType>* treeRoot)
 {
@@ -224,22 +227,16 @@ BinaryNode<ItemType>* BinarySearchTree<ItemType>::_search (BinaryNode<ItemType> 
 
 // internal remove: locate and delete target node under nodePtr subtree
 template<class ItemType>
-void BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType>* nodePtr, const ItemType target, bool &success)
+bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType>* targetPtr, const ItemType target)
 {
-    if (!nodePtr) // == NULL
-    {
-        success = false;
-        return nodePtr;
-    }
+    if (isEmpty())
+        return false;
     if (nodePtr->getItem() > target)
         nodePtr->setLeftPtr(_remove(nodePtr->getLeftPtr(), target, success));
     else if (nodePtr->getItem() < target)
         nodePtr->setRightPtr(_remove(nodePtr->getRightPtr(), target, success));
     else
-    {
         nodePtr =  _removeNode(nodePtr);
-        success = true;
-    }
     return nodePtr;
 }
 
