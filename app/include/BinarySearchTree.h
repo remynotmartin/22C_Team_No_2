@@ -31,8 +31,8 @@ public:
     // insert a node at the correct location
     bool insertBST (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
 
-    // remove a node if found
-    bool removeBST (const ListNode<ItemType> *targetPtr, unsigned compare(const ItemType&, const ItemType&));
+    // Break links to a node from the coreDataList
+    bool removeBST (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
 
     // find a target node
     BinaryNode<ItemType>* searchBST (const ItemType &target, unsigned compare(const ItemType&, const ItemType&)) const;
@@ -53,10 +53,10 @@ private:
     BinaryNode<ItemType>* _search (BinaryNode<ItemType> *treePtr, const ItemType &target, unsigned compare()) const;
     
     // internal remove node: locate and delete target node under nodePtr subtree
-    bool _remove (BinaryNode<ItemType> *targetNode, unsigned compare(const ItemType&, const ItemType&));
+    bool _remove (BinaryNode<ItemType> *subTreeRoot, BinaryNode<ItemType> *parentPtr, const ItemType &target, unsigned compare(const ItemType&, const ItemType&));
     
      // delete target node from tree, called by internal remove node
-    void _removeNode (BinaryNode<ItemType>* targetNodePtr);
+    void _removeNode (BinaryNode<ItemType> *targetNodePtr, BinaryNode<ItemType> *parentNode, unsigned compare(const ItemType&, const ItemType&));
     
      // remove the leftmost node in the left subtree of nodePtr
     void _removeLeftmostNode (BinaryNode<ItemType>* nodePtr, ItemType &successor);
@@ -86,12 +86,9 @@ void BinarySearchTree<ItemType>::insertBST(const ListNode<ItemType> *newEntry, u
 // - if found, it copies data from that node and sends it back to the caller
 //   via the output parameter, and returns true, otherwise it returns false.
 template<class ItemType>
-bool BinarySearchTree<ItemType>::removeBST(const ListNode<ItemType> *targetNode)
+bool BinarySearchTree<ItemType>::removeBST(const ListNode<ItemType> *targetNode, unsigned compare(const ItemType&, const ItemType&))
 {
-    bool removeSuccess = _remove(rootPtr, targetNode);
-    if (removeSuccess)
-        count--;
-    return result;
+    return _remove(rootPtr, nullptr, targetNode->getItem(), compare); // Start from root
 }
 
 
@@ -223,53 +220,78 @@ BinaryNode<ItemType>* BinarySearchTree<ItemType>::_search (BinaryNode<ItemType> 
         
 }
 
-
-// internal remove: locate and delete target node under nodePtr subtree
+// The compareLang(lhs, rhs) function passed in from main() for this project returns
+// these values:
+//  lhs == rhs : return 0
+//  lhs >  rhs : return 1
+//  lhs <  rhs : return 2
+/
+// internal remove: locate and delete target node under subtree
 template<class ItemType>
-bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType>* targetPtr, const ItemType target)
+bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType> *subTreeRoot, BinaryNode<ItemType> *parentPtr, const ItemType &target, unsigned compare(const ItemType&, const ItemType&))
 {
-    if (isEmpty())
+    if (!subTreeRoot) // if subTreeRoot == nullptr
         return false;
-    if (nodePtr->getItem() > target)
-        nodePtr->setLeftPtr(_remove(nodePtr->getLeftPtr(), target, success));
-    else if (nodePtr->getItem() < target)
-        nodePtr->setRightPtr(_remove(nodePtr->getRightPtr(), target, success));
+
+    unsigned compResult = compare(subTreeRoot->getItem(), target);
+
+    if      (compResult == 1)
+    {
+        return subTreeRoot->setLeftPtr(_remove(subTreeRoot->getLeftPtr(), subTreeRoot, target, compare));
+    }
+    else if (compResult == 2)
+    {
+        return subTreeRoot->setRightPtr(_remove(subTreeRoot->getRightPtr(), subTreeRoot, target, compare));
+    }
     else
-        nodePtr =  _removeNode(nodePtr);
-    return nodePtr;
+    {
+        return subTreeRoot = _removeNode(subTreeRoot, parentPtr);
+    }
 }
 
  // delete target node from tree, called by internal remove node
 template<class ItemType>
-void BinarySearchTree<ItemType>::_removeNode(BinaryNode<ItemType>* targetNodePtr)
+bool BinarySearchTree<ItemType>::_removeNode(BinaryNode<ItemType>* targetNodePtr, BinaryNode<ItemType> *parentPtr)
 {
-    if (targetNodePtr->isLeaf())    // no leaf
+    if (targetNodePtr->isLeaf())            // targetNodePtr is Canadian ("a Leaf")
     {
         delete targetNodePtr;
-        targetNodePtr = nullptr;
-        return targetNodePtr;
     }
-    else if (!targetNodePtr->getLeftPtr())  //Right
+    else if (!targetNodePtr->getLeftPtr() && targetNodePtr->getRightPtr()) // Only right child exists
     {
         BinaryNode<ItemType>* rightChild = targetNodePtr->getRightPtr();
         delete targetNodePtr;
-        targetNodePtr = nullptr;
-        return rightChild;
+        parentPtr->setRightPtr(rightChild);
     }
-    else if (!targetNodePtr->getRightPtr()) //Left
+    else if (!targetNodePtr->getRightPtr() && targetNodePtr->getLeftPtr()) // Only left child exists
     {
         BinaryNode<ItemType>* leftChild = targetNodePtr->getLeftPtr();
         delete targetNodePtr;
-        targetNodePtr = nullptr;
-        return leftChild;
+        parentPtr->setLeftPtr(leftChild);
     }
-    else    // have both childrens
+    else    // Node has two children (replace node with left-most node in right subtree, the successor.)
     {
-        ItemType newNodeVal;
-        targetNodePtr->setRightPtr(_removeLeftmostNode(targetNodePtr->getRightPtr(), newNodeVal));
-        targetNodePtr->setItem(newNodeVal);
-        return targetNodePtr;
+        // Find successor node and its parent
+        BinaryNode<ItemType> *seeker          = targetNodePtr->getRightPtr(), // Start with the right subtree
+                             *successor       = seeker,
+                             *successorParent = targetNodePtr;
+
+        while (seeker) // != nullptr
+        {
+            seeker = seeker->getLeftPtr();
+            if (!seeker)
+                break;
+            successorParent = successor
+            successor = seeker;
+        }
+        // Disconnect successor from its parent, and connect it to its
+        // right-hand subtree (if it exists), otherwise it just goes to nullptr.
+        successorParent->setLeftPtr(successor->getRightPtr()); 
+        targetNodePtr->setDataPtr(successor->getDataPtr()); // Replace the pointed value of the targetNode with the successor's
+        delete successor; // The successor has successfully overwritten the targetNodePtr, so we put it to rest.
     }
+    count--;
+    return true;
 }
 
  // remove the leftmost node in the left subtree of nodePtr

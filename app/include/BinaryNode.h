@@ -42,7 +42,7 @@ public:
 	BinaryNode<ItemType>* getRightPtr() const { return rightPtr; }
 
     // other functions
-    bool isLeaf() const {return (leftPtr == 0 && rightPtr == 0);}
+    bool isLeaf() const {return (leftPtr == nullptr && rightPtr == nullptr);}
     
 }; 
 
