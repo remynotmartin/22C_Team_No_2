@@ -15,8 +15,9 @@
 
 #include "LinkedList.h"
 #include "Country.h"
-#include "Stack.h"      // For the undo-stack
-#include "HashTable.h"
+#include "Stack.h"      // For the undoStack
+#include "HashTable.h"  // Includes HashNode.h
+#include "BinarySearchTree.h" // Includes BinaryNode.h
 
 void splashScreen ();
 void mainMenu     ();
@@ -31,11 +32,19 @@ void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
 const std::string  inputFilename = "./data/primaryData.csv";
 const std::string outputFilename = "./data/database.csv";
 
+// Function to be passed into the BST functions so that they make proper comparisons.
+unsigned compareLang          (const Country&, const Country&); 
+void     visitBST_Node        (const BinaryNode<ItemType>*);
+void     visitBST_Node_indent (const BinaryNode<ItemType>*, const unsigned level);
+
 int main()
 {
     splashScreen();
-    LinkedList<Country> coreDataList;
-    Stack<Country>      undoStack;
+
+    LinkedList<Country>       coreDataList;
+    Stack<Country>            undoStack;
+    HashTable<Country>        nameTable;
+    BinarySearchTree<Country> langTree;
 
     // Read primary input data
     if (!fileRead(coreDataList))
@@ -95,7 +104,7 @@ void splashScreen()
     std::cout << "------------------------------------------------------" << std::endl;
     std::cout << "    Remy Dinh   : Project Coordination & Integration  " << std::endl;
     std::cout << "    Shun Furuya : Hash List Algorithms                " << std::endl;
-    std::cout << "    Mahik Kaur  : Screen Output                       " << std::endl;
+    std::cout << "    Mahik Kaur  : Screen Output & File I/O            " << std::endl;
     std::cout << "    Taeyoon Kim : BST Algorithms                      " << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
     std::cout << std::endl;
@@ -121,7 +130,7 @@ void mainMenu()
     std::cout << "5. List countries by language" << std::endl; // Print inOrder traversal of the BST
     std::cout << "6. Write data to file"         << std::endl; // Last bit of I/O baby.
     std::cout << "7. Hash Table Statistics"      << std::endl; // Print # of collisions, longest collision list, load factor, etc.
-    std::cout << "8. Undo Deletion"              << std::endl;
+    std::cout << "8. Undo Last Deletion"         << std::endl;
     std::cout << "9. Display Menu"               << std::endl; // Show this menu once after start, then only upon request.
 
     //std::cout << "99. Print coreDataList (testing)" << std::endl; // TESTING
@@ -311,4 +320,55 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
 }
 
 
+/* compareLang()
+ * This function is passed into the BST member function calls so that the BST can make the proper
+ * comparisons between the secondary key of each respective Country object.
+ *
+ * Return values at a glance:
+ *  lhs == rhs : return 0
+ *  lhs >  rhs : return 1
+ *  lhs <  rhs : return 2
+ */
+unsigned compareLang(const Country &lhs, const Country &rhs)
+{
+    if (lhs.getLanguage() == rhs.getLanguage())
+        return 0;
+    if (lhs.getLanguage() >  rhs.getLanguage())
+        return 1;
+    return 2;
+}
 
+
+void visitBST_Node (const BinaryNode<ItemType> *nodePtr)
+{
+    std::cout << nodePtr->getItem() << std::endl;
+}
+
+
+void visitBST_Node_indent (const BinaryNode<ItemType> *nodePtr, const unsigned level)
+{
+    void levelIndent(const unsigned level)
+    {
+        for (auto i = 0u; i < level; i++)
+            std::cout << "  ";
+    }
+
+    levelIndent(level);
+    std::cout << "###########################################" << std::endl;
+    levelIndent(level);
+    std::cout << "            Country: " << rhs.name           << std::endl;
+    levelIndent(level);
+    std::cout << "       Capital City: " << rhs.capitalCity    << std::endl;
+    levelIndent(level);
+    std::cout << "Recognized Language: " << rhs.language       << std::endl;
+    levelIndent(level);
+    std::cout << "         Population: " << rhs.population     << std::endl;
+    levelIndent(level);
+    std::cout << "     Major Religion: " << rhs.majorReligion  << std::endl;
+    levelIndent(level);
+    std::cout << "                GDP: " << rhs.GDP            << std::endl;
+    levelIndent(level);
+    std::cout << "       Surface Area: " << rhs.surfaceArea    << std::endl;
+    levelIndent(level);
+    std::cout << "###########################################" << std::endl;
+}

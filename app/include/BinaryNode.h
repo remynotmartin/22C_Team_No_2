@@ -2,6 +2,10 @@
  * Style and integration by: Remy Dinh
  * 
  * This BinaryNode is to be used by the Binary Tree & BST
+ * Similarly to the HashNode, the BinaryNode class template as prepared
+ * here is a "meta-node", in that it points to another node that contains
+ * data, rather than directly containing a copy of the data itself.
+ *
  */
 
 
