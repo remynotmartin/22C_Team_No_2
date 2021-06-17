@@ -12,27 +12,26 @@ class LinkedList
 {
 private:
     ListNode<ItemType> *head;
-    int                 length;
+    unsigned            length;
 
 public:
     LinkedList();  // constructor
     ~LinkedList(); // destructor
 
     // Linked list operations
-    int                 getLength   ()                               const {return length;}
+    unsigned            getLength   ()                               const {return length;}
     bool                insertNode  (const ItemType&);
     void                displayList ()                               const;
-    ListNode<ItemType> *searchList  (const std::string&) const;
-    bool                prependList (const ItemType&);
+    ListNode<ItemType> *searchList  (const std::string&)             const;
     ListNode<ItemType> *removeItem  (const std::string &target);
-    void                reinsert    (ListNode<ItemType> *restoredItem);
+    void                reinsert    (ListNode<ItemType> *restoredItem); // Used by the undoStack
 };
 
 template <class ItemType>
 LinkedList<ItemType>::LinkedList()
 {
     head = new ListNode<ItemType>; // Sentinel Node
-    head->setNext(head);           // Point at itself
+    head->setNext(head);           // Point at itself, "Snake eats its own tail"
     length = 0;
 }
 
@@ -42,6 +41,16 @@ template <class ItemType>
 LinkedList<ItemType>::~LinkedList()
 {
     // To be done: Free the list such that no memory leak occurs.
+    ListNode<ItemType>* wanderer = head->getNext(),
+                        nextNode = wanderer->getNext();
+    while (wanderer != head)
+    {
+        delete wanderer;
+        wanderer = nextNode;
+        nextNode = nextNode->getNext();
+    }
+    // Now that the main nodes are gone, don't forget to delete the sentinel node.
+    delete wanderer;
 }
 
 
@@ -125,7 +134,7 @@ ListNode<ItemType> *LinkedList<ItemType>::searchList(const std::string &target) 
     if (pCur->getItem() == target)
         return pCur;
 
-    return nullptr;
+    return nullptr; // Item not found in database.
 }
 
 

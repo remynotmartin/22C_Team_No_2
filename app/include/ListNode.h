@@ -1,9 +1,12 @@
 #ifndef LISTNODE_H
 #define LISTNODE_H
 
-// Written by: Remy Dinh
-// Replaces old Node struct in LinkedList and StackNode in Stack
-// so that both structures can have a unified ListNode data type
+/*
+ * Written by: Remy Dinh
+ * Replaces old Node struct in LinkedList and Stack class templates
+ * so that both the undoStack and coreDataList in main() can use
+ * a unified ListNode class template.
+ */
 
 template <typename ItemType>
 class ListNode

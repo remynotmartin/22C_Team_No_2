@@ -24,6 +24,7 @@ bool fileRead     (LinkedList<Country> &coreDataList);
 void teamNames    ();
 void removeData   (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
 void addData      (LinkedList<Country> &coreDataList);
+void searchList   (LinkedList<Country> &coreDataList);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList);
 
 // These paths assume program is run from project root.
@@ -56,6 +57,9 @@ int main()
                 break;
             case 2: // Delete Data
                 removeData(coreDataList, undoStack);
+                break;
+            case 3:
+                searchList(coreDataList);
                 break;
             case 8:
                 undoRemove(undoStack, coreDataList);
@@ -115,12 +119,12 @@ void mainMenu()
     std::cout << "3. Search by country name"     << std::endl; // Primary key, uses Hash Table
     std::cout << "4. Search by language"         << std::endl; // Secondary key, uses (BST)
     std::cout << "5. List countries by language" << std::endl; // Print inOrder traversal of the BST
-    std::cout << "6. Write data to file"         << std::endl; // More File I/O baby.
+    std::cout << "6. Write data to file"         << std::endl; // Last bit of I/O baby.
     std::cout << "7. Hash Table Statistics"      << std::endl; // Print # of collisions, longest collision list, load factor, etc.
     std::cout << "8. Undo Deletion"              << std::endl;
     std::cout << "9. Display Menu"               << std::endl; // Show this menu once after start, then only upon request.
 
-    std::cout << "99. Print coreDataList (testing)" << std::endl;
+    //std::cout << "99. Print coreDataList (testing)" << std::endl; // TESTING
     std::cout << "0. Exit"                       << std::endl << std::endl;
 }
 
@@ -208,11 +212,16 @@ void addData (LinkedList<Country> &coreDataList)
     double      gdpIn  = 0.0,
                 areaIn = 0.0;
 
-
     std::cout << "What is the name of the country you want to add to the database? ";
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, nameIn);
+
+    if (coreDataList.searchList(nameIn))
+    {
+        std::cout << nameIn << " already exists here in the database. Aborting operation." << std::endl;
+        return;
+    }
 
     std::cout << "What is the capital of " << nameIn << "? ";
     std::cin.clear();
@@ -268,6 +277,23 @@ void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
     std::cout <<  query << " was removed from the database." << std::endl;
 }
 
+
+void searchList (LinkedList<Country> &coreDataList)
+{
+    std::string query("");
+    std::cout << "What country would you like to search for?" << std::endl;
+    std::cin.ignore();
+    std::getline(std::cin, query);
+    ListNode<Country> *holder = coreDataList.searchList(query);
+
+    if (!holder)
+    {
+        std::cout << query << " was not found in the database." << std::endl;
+        return;
+    }
+    std::cout << holder;
+    return;
+}
 
 // Pops latest removed item from the undoStack, and reinserts it into the coreDataList,
 // and will call upon the BST and Hash Table functions to reestablish links.

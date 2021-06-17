@@ -1,7 +1,7 @@
-/*                     Originally written by: Taeyoon Kim
- * Style and integration adjustments made by: Remy Dinh
+/*    Originally written by: Taeyoon Kim
+ * Style and integration by: Remy Dinh
  * 
- * This BinaryNode is to be used by the Binary Search Tree
+ * This BinaryNode is to be used by the Binary Tree & BST
  */
 
 
@@ -14,7 +14,7 @@ template<class ItemType>
 class BinaryNode
 {   
 private:
-	ListNode<ItemType>   *dataPtr;         // Data portion
+	ListNode<ItemType>   *dataPtr;      // Pointer to Data Node
 	BinaryNode<ItemType> *leftPtr;		// Pointer to left child
 	BinaryNode<ItemType> *rightPtr;		// Pointer to right child
 
@@ -27,11 +27,12 @@ public:
     ~BinaryNode() {}
 
 	// setters
-	void setDataPtr  (ListNode<ItemType> *aDataPtr)  { dataPtr  = aDataPtr; }
-	void setLeftPtr  (BinaryNode<ItemType> *left)    { leftPtr  = left; }
-    void setRightPtr (BinaryNode<ItemType> *right)   { rightPtr = right; }
+	void setDataPtr  (ListNode<ItemType>   *aDataPtr) { dataPtr  = aDataPtr; }
+	void setLeftPtr  (BinaryNode<ItemType> *left)     { leftPtr  = left; }
+    void setRightPtr (BinaryNode<ItemType> *right)    { rightPtr = right; }
     
 	// getters
+    ItemType              getData()     const { return dataPtr->getItem(); }
 	ListNode<ItemType>*   getDataPtr()  const { return dataPtr;  }
 	BinaryNode<ItemType>* getLeftPtr()  const { return leftPtr;  }
 	BinaryNode<ItemType>* getRightPtr() const { return rightPtr; }
