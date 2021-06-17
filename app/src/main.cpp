@@ -26,7 +26,9 @@ bool fileRead     (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<C
 void removeData   (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&, Stack<Country>&);
 void addData      (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&);
 void searchName   (HashTable<Country>&);
-void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList);
+void hashStats    (HashTable<Country>&);
+void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country>&, BinarySearchTree<Country>&);
+void levelIndent  (const unsigned level);
 
 // These paths assume program is run from project root.
 const std::string  inputFilename = "./data/primaryData.csv";
@@ -34,8 +36,8 @@ const std::string outputFilename = "./data/database.csv";
 
 // Function to be passed into the BST functions so that they make proper comparisons.
 unsigned compareLang          (const Country&, const Country&); 
-void     visitBST_Node        (const BinaryNode<ItemType>*);
-void     visitBST_Node_indent (const BinaryNode<ItemType>*, const unsigned level);
+void     visitBST_Node        (const BinaryNode<Country>*);
+void     visitBST_Node_indent (const BinaryNode<Country>*, const unsigned level);
 
 int main()
 {
@@ -77,9 +79,10 @@ int main()
             case 6: // Write Data to File
                 break;
             case 7: // Output Hash Table Statistics
+                hashStats(nameTable);
                 break;
             case 8:
-                undoRemove(undoStack, coreDataList);
+                undoRemove(undoStack, coreDataList, nameTable, langTree);
                 break;
             case 9: // Display Main Menu
                 mainMenu();
@@ -206,7 +209,7 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
                     area       = std::stod (lineBuffer.substr(comma_5 + 1, comma_6 - comma_5 - 1));
 
         Country temp(name, language, population, religion, GDP, area, capital);
-        ListNode<Country> newDataNode = new ListNode<Country>(temp, nullptr);
+        ListNode<Country> *newDataNode = new ListNode<Country>(temp, nullptr);
         
         // Insert into coreDataList
         if (!coreDataList.insert(newDataNode))
@@ -218,8 +221,17 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
             // Record was rejected, so since we allocated a node for this record, we need to clean it up.
             delete newDataNode; 
         }
-        else if (!nameTable.insert(newDataNode);
-        langTree.insertBST(newDataNode);
+
+        if (!nameTable.insert(newDataNode))
+        {
+            std::cout << "Could not insert " << temp.getName() << " into the hash table." << std::endl;
+        }
+
+        if (!langTree.insertBST(newDataNode, compareLang))
+        {
+            std::cout << "Could not insert " << temp.getName() << " into the BST." << std::endl;
+        }
+
     }
     inputFile.close();
 
@@ -229,7 +241,7 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
 // Adds data to the coreDataList, which will in turn be linked to by the BST
 // and Hash Tables later on as they're implemented.
 //
-void addData (LinkedList<Country> &coreDataList)
+void addData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree)
 {
     // Buffer variables
     std::string nameIn(""),
@@ -245,7 +257,7 @@ void addData (LinkedList<Country> &coreDataList)
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, nameIn);
 
-    if (coreDataList.searchList(nameIn))
+    if (nameTable.search(nameIn))
     {
         std::cout << nameIn << " already exists here in the database. Aborting operation." << std::endl;
         return;
@@ -279,7 +291,21 @@ void addData (LinkedList<Country> &coreDataList)
 
     ListNode<Country>* newDataNode = new ListNode<Country>(tempObj, nullptr);
 
-    coreDataList.insert(newDataNode);
+    if (!coreDataList.insert(newDataNode))
+    {
+        std::cout << "Failure to insert new record into the coreDataList!" << std::endl;
+        return;
+    }
+    if (!nameTable.insert(newDataNode))
+    {
+        std::cout << "Failure to insert new record into the hash table!" << std::endl;
+        return;
+    }
+    if (!langTree.insertBST(newDataNode, compareLang))
+    {
+        std::cout << "Failure to insert new record into the BST!" << std::endl;
+        return;
+    }
 
     std::cout << "Okay, " << nameIn << " has been added to the database.\n" << std::endl;
 }
@@ -290,32 +316,48 @@ void addData (LinkedList<Country> &coreDataList)
 //
 // Menu OPCODE: 2
 //
-void removeData (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
+void removeData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree, Stack<Country> &undoStack)
 {
     std::string query("");
     std::cout << "Please input the name of the country you want to remove: ";
     std::cin.ignore();
     std::getline(std::cin, query);
-    //
-    ListNode<Country> *holder = coreDataList.removeItem(query);
-    if (!holder) // Holder == nullptr;
+
+    HashNode<Country> *checker = nameTable.search(query);
+    if (!checker) // checker == nullptr;
     {
         std::cout << query << " was not found in the database." << std::endl;
         return;
     }
 
+    ListNode<Country> *auxHolder = coreDataList.searchList(query);
+    // Break the links in the BST and Hash Table first
+    if (!nameTable.remove(query))
+    {
+        std::cout << "Unable to remove " << query << " from hash table." << std::endl;
+        return;
+    }
+    if (!langTree.removeBST(auxHolder, compareLang))
+    {
+        std::cout << "Unable to remove " << query << " from BST." << std::endl;
+        return;
+    }
+
+    ListNode<Country> *holder = coreDataList.removeItem(query);
     undoStack.push(holder); // Push removed item onto stack
     std::cout << query << " was removed from the database." << std::endl;
 }
 
 
-void searchList (LinkedList<Country> &coreDataList)
+// Goes through hash table with queried Country Name
+//
+void searchName (HashTable<Country> &nameTable)
 {
     std::string query("");
     std::cout << "What country would you like to search for?" << std::endl;
     std::cin.ignore();
     std::getline(std::cin, query);
-    ListNode<Country> *holder = coreDataList.searchList(query);
+    HashNode<Country> *holder = nameTable.search(query);
 
     if (!holder)
     {
@@ -326,10 +368,22 @@ void searchList (LinkedList<Country> &coreDataList)
     return;
 }
 
+
+void hashStats (HashTable<Country> &nameTable)
+{
+    std::cout << "---------------------:" << std::endl;
+    std::cout << "Hash Table Statistics:" << std::endl;
+    std::cout << "---------------------:" << std::endl;
+    std::cout << "         Load Factor: " << nameTable.getLoadFactor() << std::endl;
+    std::cout << "   Space Utilization: " << nameTable.getSpaceUtil()  << std::endl;
+    std::cout << "Longest Chain Length: " << nameTable.getLongestChain() << " item(s)" << std::endl;
+
+}
+
 // Pops latest removed item from the undoStack, and reinserts it into the coreDataList,
 // and will call upon the BST and Hash Table functions to reestablish links.
 //
-void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
+void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree)
 {
     ListNode<Country> *dataPtr = undoStack.pop();
     if (!dataPtr) // dataPtr == nullptr, so undo stack was empty.
@@ -337,7 +391,14 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList)
         std::cout << "The deletion stack is empty!" << std::endl;
         return;
     }
+
+    // Reinsert into coreDataList
     coreDataList.insert(dataPtr);
+
+    // Relink
+    nameTable.insert(dataPtr);
+    langTree.insertBST(dataPtr, compareLang);
+
     std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
 }
 
@@ -360,33 +421,33 @@ unsigned compareLang(const Country &lhs, const Country &rhs)
     return 2;
 }
 
+void levelIndent(const unsigned level)
+{
+    for (auto i = 0u; i < level; i++)
+        std::cout << "  ";
+}
 
 // This visit function enables the BST to print out with indents based on a node's level.
 //
-void visitBST_Node_indent (const BinaryNode<ItemType> *nodePtr, const unsigned level)
+void visitBST_Node_indent (const BinaryNode<Country> *nodePtr, const unsigned level)
 {
-    void levelIndent(const unsigned level)
-    {
-        for (auto i = 0u; i < level; i++)
-            std::cout << "  ";
-    }
 
     levelIndent(level);
     std::cout << "###########################################" << std::endl;
     levelIndent(level);
-    std::cout << "            Country: " << rhs.name           << std::endl;
+    std::cout << "            Country: " << nodePtr->getData().getName() << std::endl;
     levelIndent(level);
-    std::cout << "       Capital City: " << rhs.capitalCity    << std::endl;
+    std::cout << "       Capital City: " << nodePtr->getData().getCapitalCity() << std::endl;
     levelIndent(level);
-    std::cout << "Recognized Language: " << rhs.language       << std::endl;
+    std::cout << "Recognized Language: " << nodePtr->getData().getLanguage() << std::endl;
     levelIndent(level);
-    std::cout << "         Population: " << rhs.population     << std::endl;
+    std::cout << "         Population: " << nodePtr->getData().getPopulation() << std::endl;
     levelIndent(level);
-    std::cout << "     Major Religion: " << rhs.majorReligion  << std::endl;
+    std::cout << "     Major Religion: " << nodePtr->getData().getMajorReligion() << std::endl;
     levelIndent(level);
-    std::cout << "                GDP: " << rhs.GDP            << std::endl;
+    std::cout << "                GDP: " << nodePtr->getData().getGDP() << std::endl;
     levelIndent(level);
-    std::cout << "       Surface Area: " << rhs.surfaceArea    << std::endl;
+    std::cout << "       Surface Area: " << nodePtr->getData().getSurfaceArea() << std::endl;
     levelIndent(level);
     std::cout << "###########################################" << std::endl;
 }

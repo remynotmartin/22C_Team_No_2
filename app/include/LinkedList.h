@@ -40,8 +40,8 @@ template <class ItemType>
 LinkedList<ItemType>::~LinkedList()
 {
     // To be done: Free the list such that no memory leak occurs.
-    ListNode<ItemType>* wanderer = head->getNext(),
-                        nextNode = wanderer->getNext();
+    ListNode<ItemType> *wanderer = head->getNext(),
+                       *nextNode = wanderer->getNext();
     while (wanderer != head)
     {
         delete wanderer;
@@ -77,7 +77,7 @@ bool LinkedList<ItemType>::insert(ListNode<ItemType> *inputDataNode)
         pCur = pCur->getNext();
     }
     
-    pPre->setNext(newNode);
+    pPre->setNext(inputDataNode);
     inputDataNode->setNext(pCur);
     
     length++;

@@ -20,8 +20,8 @@ private:
     unsigned              count;    // Total # of items in the hash table.
     
 public:
-    HashTable  ()      { count = 0; hashSize = 47; hashAry = new LinkedList<HashNode<ItemType>>[hashSize]; }
-    HashTable  (int n) { count = 0; hashSize = n;  hashAry = new LinkedList<HashNode<ItemType>>[hashSize]; }
+    HashTable  ()      { count = 0; hashSize = 47; hashAry = new HashBucket<ItemType>[hashSize]; }
+    HashTable  (int n) { count = 0; hashSize = n;  hashAry = new HashBucket<ItemType>[hashSize]; }
     ~HashTable ()      { delete [] hashAry; }
 
     // Accessors
@@ -35,9 +35,9 @@ public:
     unsigned getLongestChain () const;
 
     // Basic operations
-    bool                         insert ( ListNode<ItemType> *itemPtr);
-    bool                         remove ( ListNode<ItemType> *itemOut, const string &key);
-    HashNode<ListNode<ItemType>* search (const string &key);
+    bool                insert ( ListNode<ItemType> *itemPtr);
+    bool                remove ( const string &key );
+    HashNode<ItemType>* search ( const string &key );
 
     // Bonus function
     // Since we're a team of four, we need to implement this rehash function when our load factor reaches 0.75
@@ -129,12 +129,10 @@ bool HashTable<ItemType>::insert(ListNode<ItemType> *itemPtr)
 // Returns true upon successful removal of meta-node HashNode, and false otherwise.
 //
 template<class ItemType>
-bool HashTable<ItemType>::remove(ListNode<ItemType> *itemOut, const string &key)
+bool HashTable<ItemType>::remove(const string &key)
 {
-    ListNode<ItemType> *holder = hashAry[_hash(key)].removeItem(key);
-    if (holder)
+    if (hashAry[_hash(key)].removeItem(key))
     {
-        delete holder;
         count--; // Decrement table's overall count, not the bucket's
         return true;
     }

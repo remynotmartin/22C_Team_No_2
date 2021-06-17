@@ -18,7 +18,7 @@ class HashBucket : public LinkedList<ItemType>
 {
 private:
     HashNode<ItemType> *bucketHead;
-    // length is inherited from LinkedList
+    unsigned length;
 
 public:
     HashBucket();
@@ -36,9 +36,9 @@ public:
 };
 
 template<class ItemType>
-HashBucket::HashBucket()
+HashBucket<ItemType>::HashBucket()
 {
-    head = nullptr; // Unused old pointer inherited from LinkedList
+    //head = nullptr; // Unused old pointer inherited from LinkedList
 
     bucketHead = new HashNode<ItemType>; // Allocate sentinel node,
     bucketHead->setNext(bucketHead);     // Point at self, "Snake eats its tail"
@@ -46,10 +46,10 @@ HashBucket::HashBucket()
 }
 
 template<class ItemType>
-HashBucket::~HashBucket()
+HashBucket<ItemType>::~HashBucket()
 {
     HashNode<ItemType> *terminator = bucketHead->getNext(), // Jump past the sentinel node
-                        nextNode   = terminator->getNext();
+                       *nextNode   = terminator->getNext();
     while (terminator != bucketHead)
     {
         delete terminator;
@@ -62,7 +62,7 @@ HashBucket::~HashBucket()
 
 
 template<class ItemType>
-bool HashBucket::insertItem(HashNode<ItemType> *inputNode)
+bool HashBucket<ItemType>::insertItem(HashNode<ItemType> *inputNode)
 {
     if (searchItem(inputNode->getItem().getName()) != nullptr)
     {
@@ -92,7 +92,7 @@ bool HashBucket::insertItem(HashNode<ItemType> *inputNode)
 // so this function erases nodes, rather than simply disconnecting and returning them.
 //
 template<class ItemType>
-bool HashBucket::removeItem(const std::string &query)
+bool HashBucket<ItemType>::removeItem(const std::string &query)
 {
     if (searchItem(query) == nullptr)
     {
@@ -121,7 +121,7 @@ bool HashBucket::removeItem(const std::string &query)
 
 
 template<class ItemType>
-HashNode<ItemType>* HashBucket::searchItem(const std::string &query)
+HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
 {
     HashNode<ItemType> *pCur = bucketHead->getNext(); // Skip sentinel node
     while (pCur != bucketHead && pCur->getItem() < query)
@@ -132,3 +132,5 @@ HashNode<ItemType>* HashBucket::searchItem(const std::string &query)
 
     return nullptr; // Item's not in the bucket!
 }
+
+#endif

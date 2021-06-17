@@ -23,13 +23,13 @@ public:
     bool     isEmpty   ()                                             const { return count == 0; }
     unsigned getCount  ()                                             const { return count; }
     void     clear     ()                                                   { destroyTree(rootPtr); rootPtr = nullptr; count = 0; }
-    void     inOrder   (void visit(const BinaryNode<ItemType>*))      const { _inorder(visit, rootPtr); }
+    void     inOrder   (void visit(const BinaryNode<ItemType>*))      const { _inorder(rootPtr); }
 
     // To be used by a secret menu option, prints an indented tree using in-order traversal.
-    void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) const { _printTree(visit, rootPtr, 1); }
+    void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) { _printTree(visit, rootPtr, 0); }
     
     // insert a node at the correct location
-    bool insertBST (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
+    bool insertBST (ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
 
     // Break links to a node from the coreDataList
     bool removeBST (const ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
@@ -43,23 +43,21 @@ public:
 private:
 
     // internal traverse
-    void _inorder   (void visit(const BinaryNode<ItemType>*), BinaryNode<ItemType>* nodePtr) const;
-    void _printTree (void visit(const BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType>* nodePtr, const unsigned level) const;
+    void _inorder   (BinaryNode<ItemType>* nodePtr) const;
+    void _printTree (void visit(BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType>* nodePtr, const unsigned level) const;
 
     // internal insert node: insert newNode in nodePtr subtree
-    void _insert (BinaryNode<ItemType> *nodePtr, BinaryNode<ItemType> *newNode, unsigned compare(const ItemType&, const ItemType&);
+    void _insert (BinaryNode<ItemType> *nodePtr, BinaryNode<ItemType> *newNode, unsigned compare(const ItemType&, const ItemType&));
    
     // search for target node
-    BinaryNode<ItemType>* _search (BinaryNode<ItemType> *treePtr, const ItemType &target, unsigned compare()) const;
+    BinaryNode<ItemType>* _search (BinaryNode<ItemType> *treePtr, const ItemType &target, unsigned compare(const ItemType&, const ItemType&)) const;
     
     // internal remove node: locate and delete target node under nodePtr subtree
     bool _remove (BinaryNode<ItemType> *subTreeRoot, BinaryNode<ItemType> *parentPtr, const ItemType &target, unsigned compare(const ItemType&, const ItemType&));
     
      // delete target node from tree, called by internal remove node
-    void _removeNode (BinaryNode<ItemType> *targetNodePtr, BinaryNode<ItemType> *parentNode, unsigned compare(const ItemType&, const ItemType&));
+    bool _removeNode (BinaryNode<ItemType> *targetNodePtr, BinaryNode<ItemType> *parentNode);
     
-     // remove the leftmost node in the left subtree of nodePtr
-    void _removeLeftmostNode (BinaryNode<ItemType>* nodePtr, ItemType &successor);
 };
 
 
@@ -69,7 +67,7 @@ private:
 //    since 'this' is implicit to the class template in this context.
 //
 template<class ItemType>
-void BinarySearchTree<ItemType>::insertBST(const ListNode<ItemType> *newEntry, unsigned compare(const ItemType&, const ItemType&))
+bool BinarySearchTree<ItemType>::insertBST(ListNode<ItemType> *newEntry, unsigned compare(const ItemType&, const ItemType&))
 {
     // Dynamically allocate a new BinaryNode to be inserted into the tree.
     // The constructor points the new node's dataPtr directly to the data
@@ -78,6 +76,7 @@ void BinarySearchTree<ItemType>::insertBST(const ListNode<ItemType> *newEntry, u
 
     _insert(rootPtr, newNodePtr, compare);
     count++;
+    return true;
 }
 
 
@@ -98,7 +97,7 @@ bool BinarySearchTree<ItemType>::removeBST(const ListNode<ItemType> *targetNode,
  */
 // Wrapper for _search
 template<class ItemType>
-BinaryNode<ItemType>* BinarySearchTree<ItemType>::searchBST(const ItemType &target
+BinaryNode<ItemType>* BinarySearchTree<ItemType>::searchBST(const ItemType &target,
                                                             unsigned        compare (const ItemType&, const ItemType&)) const
 {
     return _search(rootPtr, target, compare);
@@ -155,7 +154,7 @@ void BinarySearchTree<ItemType>::_insert(BinaryNode<ItemType> *treeRoot,
         return;
     }
 
-    unsigned compResult = compare(pCur->getItem(), newNodePtr->getItem());
+    unsigned compResult = compare(pCur->getData(), newNodePtr->getData());
 
     // "You're going to see that trees really lend themselves to recursion." - Delia, Winter Quarter 2017
     //
@@ -164,14 +163,14 @@ void BinarySearchTree<ItemType>::_insert(BinaryNode<ItemType> *treeRoot,
     if (compResult == 1) // newNodePtr's item's secondary key < pCur's item's secondary key, so go left
     {
         if (pCur->getLeftPtr()) // A left node already exists
-            _insert(pCur->getLeftPtr(), newNodePtr);
+            _insert(pCur->getLeftPtr(), newNodePtr, compare);
         else
             pCur->setLeftPtr(newNodePtr);
     }
     else // Case where newNodePtr's item's secondary key is either greater or equal to pCur's
     {
         if (pCur->getRightPtr()) // A right node already exists
-            _insert(pCur->getRightPtr(), newNodePtr);
+            _insert(pCur->getRightPtr(), newNodePtr, compare);
         else
             pCur->setRightPtr(newNodePtr);
     }
@@ -225,7 +224,7 @@ BinaryNode<ItemType>* BinarySearchTree<ItemType>::_search (BinaryNode<ItemType> 
 //  lhs == rhs : return 0
 //  lhs >  rhs : return 1
 //  lhs <  rhs : return 2
-/
+//
 // internal remove: locate and delete target node under subtree
 template<class ItemType>
 bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType> *subTreeRoot, BinaryNode<ItemType> *parentPtr, const ItemType &target, unsigned compare(const ItemType&, const ItemType&))
@@ -233,19 +232,19 @@ bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType> *subTreeRoot, Bina
     if (!subTreeRoot) // if subTreeRoot == nullptr
         return false;
 
-    unsigned compResult = compare(subTreeRoot->getItem(), target);
+    unsigned compResult = compare(subTreeRoot->getData(), target);
 
     if      (compResult == 1)
     {
-        return subTreeRoot->setLeftPtr(_remove(subTreeRoot->getLeftPtr(), subTreeRoot, target, compare));
+        return _remove(subTreeRoot->getLeftPtr(), subTreeRoot, target, compare);
     }
     else if (compResult == 2)
     {
-        return subTreeRoot->setRightPtr(_remove(subTreeRoot->getRightPtr(), subTreeRoot, target, compare));
+        return _remove(subTreeRoot->getRightPtr(), subTreeRoot, target, compare);
     }
     else
     {
-        return subTreeRoot = _removeNode(subTreeRoot, parentPtr);
+        return _removeNode(subTreeRoot, parentPtr);
     }
 }
 
@@ -281,9 +280,10 @@ bool BinarySearchTree<ItemType>::_removeNode(BinaryNode<ItemType>* targetNodePtr
             seeker = seeker->getLeftPtr();
             if (!seeker)
                 break;
-            successorParent = successor
+            successorParent = successor;
             successor = seeker;
         }
+
         // Disconnect successor from its parent, and connect it to its
         // right-hand subtree (if it exists), otherwise it just goes to nullptr.
         successorParent->setLeftPtr(successor->getRightPtr()); 
@@ -294,23 +294,6 @@ bool BinarySearchTree<ItemType>::_removeNode(BinaryNode<ItemType>* targetNodePtr
     return true;
 }
 
- // remove the leftmost node in the left subtree of nodePtr
-template<class ItemType>
-void BinarySearchTree<ItemType>::_removeLeftmostNode(BinaryNode<ItemType>* nodePtr, ItemType &successor)
-{
-    if (!nodePtr->getLeftPtr())
-    {
-        successor = nodePtr->getItem();
-        return _removeNode(nodePtr);
-    }
-    else
-    {
-        nodePtr->setLeftPtr(_removeLeftmostNode(nodePtr->getLeftPtr(), successor));
-        return nodePtr;
-    }
-}
-
-
 // [ Remy's notes from Integration Purgatory ]
 //   - Adjusted parameter type of the visit() function, and adjusted visit's argument
 //     within the function body accordingly.
@@ -318,13 +301,14 @@ void BinarySearchTree<ItemType>::_removeLeftmostNode(BinaryNode<ItemType>* nodeP
 //
 //Inorder Traversal
 template<class ItemType>
-void BinarySearchTree<ItemType>::_inorder(void visit(BinaryNode<ItemType>*), BinaryNode<ItemType>* nodePtr) const
+void BinarySearchTree<ItemType>::_inorder(BinaryNode<ItemType>* nodePtr) const
 {
     if (nodePtr) // != NULL
     {
-        _inorder(visit, nodePtr->getLeftPtr());
-        visit(nodePtr);
-        _inorder(visit, nodePtr->getRightPtr());
+        _inorder(nodePtr->getLeftPtr());
+        // Simple visit
+        std::cout << nodePtr->getData();
+        _inorder(nodePtr->getRightPtr());
     }
 }
 

@@ -16,7 +16,7 @@ private:
     ListNode<ItemType> *next;
 public:
     ListNode() {}
-    ListNode(const ItemType &itemIn, ListNode<ItemType> const *nextItemPtr): item{itemIn}, next{nextItemPtr} {}
+    ListNode(const ItemType &itemIn, ListNode<ItemType> *nextItemPtr): item{itemIn}, next{nextItemPtr} {}
     ~ListNode() {}
 
     // Accessors
