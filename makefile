@@ -3,7 +3,7 @@ CFLAGS  = -Wall -Wextra -pedantic-errors -std=c++11
 INCLUDE = -I ./app/include/
 EXE		= $(BIN)test.out
 BIN     = ./bin/
-DEPS	= $(SRC_OBJ)main.o $(SRC_OBJ)Country.o $(BIN) $(SRC_OBJ)
+DEPS	= $(BIN) $(SRC_OBJ) $(SRC_OBJ)main.o $(SRC_OBJ)Country.o 
 SRC_OBJ	= ./app/src/obj/
 
 .PHONY : clean run
@@ -20,7 +20,7 @@ $(SRC_OBJ)Country.o : ./app/src/Country.cpp
 $(BIN) :
 	@mkdir $(BIN)
 
-$(SRC_OJB) :
+$(SRC_OBJ) :
 	@mkdir $(SRC_OBJ)
 
 clean :

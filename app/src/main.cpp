@@ -450,7 +450,8 @@ void visitBST_Node_indent (const BinaryNode<Country> *nodePtr, const unsigned le
     levelIndent(level);
     std::cout << "     Major Religion: " << nodePtr->getData().getMajorReligion() << std::endl;
     levelIndent(level);
-    std::cout << "                GDP: " << nodePtr->getData().getGDP() << std::endl;
+    std::cout << std::fixed;
+    std::cout << "          GDP (USD): $" << nodePtr->getData().getGDP() << std::endl;
     levelIndent(level);
     std::cout << "       Surface Area: " << nodePtr->getData().getSurfaceArea() << std::endl;
     levelIndent(level);
