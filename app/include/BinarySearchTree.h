@@ -1,4 +1,4 @@
-// Binary Tree Class Template
+// Binary Search Tree Class Template
 //  Originally written by: Taeyoon Kim
 // Style & Integration by: Remy Dinh
  
@@ -23,7 +23,9 @@ public:
     bool     isEmpty   ()                                             const { return count == 0; }
     unsigned getCount  ()                                             const { return count; }
     void     clear     ()                                                   { destroyTree(rootPtr); rootPtr = nullptr; count = 0; }
-    void     inOrder   (void visit(const BinaryNode<ItemType>*))      const { _inorder(rootPtr); }
+
+    void     inOrder       () const { _inorder(rootPtr); }
+    void     inOrder_query (unsigned compare(const ItemType&, const std::string&)) const { _inorder_query(rootPtr, compare); }
 
     // To be used by a secret menu option, prints an indented tree using in-order traversal.
     void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) { _printTree(visit, rootPtr, 0); }
@@ -43,8 +45,9 @@ public:
 private:
 
     // internal traverse
-    void _inorder   (BinaryNode<ItemType>* nodePtr) const;
-    void _printTree (void visit(BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType>* nodePtr, const unsigned level) const;
+    void _inorder       (BinaryNode<ItemType> *nodePtr, unsigned compare() const;
+    void _inorder_query (BinaryNode<ItemType> *nodePtr, unsigned compare() const;
+    void _printTree     (void visit(const BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType>* nodePtr, const unsigned level) const;
 
     // internal insert node: insert newNode in nodePtr subtree
     void _insert (BinaryNode<ItemType> *nodePtr, BinaryNode<ItemType> *newNode, unsigned compare(const ItemType&, const ItemType&));

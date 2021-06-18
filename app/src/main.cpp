@@ -26,6 +26,7 @@ bool fileRead     (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<C
 void removeData   (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&, Stack<Country>&);
 void addData      (LinkedList<Country>&, HashTable<Country>&, BinarySearchTree<Country>&);
 void searchName   (HashTable<Country>&);
+void searchLang   (BinarySearchTree<Country>&);
 void hashStats    (HashTable<Country>&);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country>&, BinarySearchTree<Country>&);
 void levelIndent  (const unsigned level);
@@ -75,8 +76,9 @@ int main()
                 searchName(nameTable);
                 break;
             case 4: // Search by language (use the BST)
+                searchLang(langTree);
                 break;
-            case 5: // List countries by language (use BST in-order traversal)
+            case 5: // List countries sorted by language (use BST in-order traversal)
                 break;
             case 6: // Write Data to File
                 break;
@@ -95,6 +97,9 @@ int main()
 
             case 42: // Display group member names (Hidden option)
                 teamNames();
+                break;
+            case 47: // Secret option to display indented langTree
+                langTree.printTree(visitBST_Node_indent);
                 break;
             case 99: // DEBUG: Display coreDataList
                 coreDataList.displayList();
@@ -148,13 +153,12 @@ void mainMenu()
     std::cout << "8. Undo Last Deletion"         << std::endl;
     std::cout << "9. Display Menu"               << std::endl; // Show this menu once after start, then only upon request.
 
-    //std::cout << "99. Print coreDataList (testing)" << std::endl; // TESTING
     std::cout << "0. Exit"                       << std::endl << std::endl;
 }
 
 
 // Little easter egg as per project requirements.
-// Menu Option: 42
+// MENU OPCODE: 42
 void teamNames()
 {
     std::cout << "##########################################" << std::endl;
@@ -244,6 +248,8 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
 
 // Adds data to the coreDataList, which will in turn be linked to by the BST
 // and Hash Tables later on as they're implemented.
+//
+// MENU OPCODE: 1
 //
 void addData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree)
 {
@@ -355,6 +361,8 @@ void removeData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTabl
 
 // Goes through hash table with queried Country Name
 //
+// OPCODE 3
+//
 void searchName (HashTable<Country> &nameTable)
 {
     std::string query("");
@@ -373,16 +381,29 @@ void searchName (HashTable<Country> &nameTable)
     return;
 }
 
+// This function invokes a special in-order traversal of the BST that only visits a node
+// if its language key matches that of the query.
+// OPCODE 4
+void searchLang (BinarySearchTree<Country> &langTree)
+{
+    std::string query("");
+    std::cout << "What language would you like to query? ";
+    std::cin.ignore();
+    std::getline(std::cin, query);
+
+    langTree.inOrder_query(query);
+}
 
 void hashStats (HashTable<Country> &nameTable)
 {
-    std::cout << "---------------------:" << std::endl;
-    std::cout << "Hash Table Statistics:" << std::endl;
-    std::cout << "---------------------:" << std::endl;
-    std::cout << "         Load Factor: " << nameTable.getLoadFactor() << std::endl;
-    std::cout << "   Space Utilization: " << nameTable.getSpaceUtil()  << std::endl;
-    std::cout << "Longest Chain Length: " << nameTable.getLongestChain() << " item(s)" << std::endl;
-
+    std::cout << ":---------------------:" << std::endl;
+    std::cout << ":Hash Table Statistics:" << std::endl;
+    std::cout << ":---------------------:" << std::endl;
+    std::cout << "          Total Items: " << nameTable.getCount()      << std::endl;
+    std::cout << "           Table Size: " << nameTable.getSize()       << std::endl;
+    std::cout << "          Load Factor: " << nameTable.getLoadFactor() << std::endl;
+    std::cout << "    Space Utilization: " << nameTable.getSpaceUtil()  << std::endl;
+    std::cout << " Longest Chain Length: " << nameTable.getLongestChain() << " item(s)" << std::endl;
 }
 
 // Pops latest removed item from the undoStack, and reinserts it into the coreDataList,
