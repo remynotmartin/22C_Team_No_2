@@ -287,7 +287,7 @@ void addData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
     std::cin.clear();
     std::cin >> gdpIn;
 
-    std::cout << "What is the surface area of " << nameIn << "? ";
+    std::cout << "What is the surface area of " << nameIn << " in square kilometres? ";
     std::cin.clear();
     std::cin >> areaIn;
 
@@ -358,7 +358,7 @@ void removeData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTabl
 void searchName (HashTable<Country> &nameTable)
 {
     std::string query("");
-    std::cout << "What country would you like to search for?" << std::endl;
+    std::cout << "What country would you like to search for? ";
     std::cin.ignore();
     std::getline(std::cin, query);
     HashNode<Country> *holder = nameTable.search(query);
@@ -450,10 +450,10 @@ void visitBST_Node_indent (const BinaryNode<Country> *nodePtr, const unsigned le
     levelIndent(level);
     std::cout << "     Major Religion: " << nodePtr->getData().getMajorReligion() << std::endl;
     levelIndent(level);
-    std::cout << std::fixed;
+    std::cout << std::fixed << std::setprecision(2);
     std::cout << "          GDP (USD): $" << nodePtr->getData().getGDP() << std::endl;
     levelIndent(level);
-    std::cout << "       Surface Area: " << nodePtr->getData().getSurfaceArea() << std::endl;
+    std::cout << "       Surface Area: " << nodePtr->getData().getSurfaceArea() << " km^2" << std::endl;
     levelIndent(level);
     std::cout << "###########################################" << std::endl;
 }
