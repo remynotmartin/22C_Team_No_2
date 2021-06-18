@@ -368,7 +368,8 @@ void searchName (HashTable<Country> &nameTable)
         std::cout << query << " was not found in the database." << std::endl;
         return;
     }
-    std::cout << holder;
+
+    std::cout << holder->getItem();
     return;
 }
 
