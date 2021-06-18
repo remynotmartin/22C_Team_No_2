@@ -123,9 +123,15 @@ bool HashBucket<ItemType>::removeItem(const std::string &query)
 template<class ItemType>
 HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
 {
+    if (length == 0)
+        return nullptr;
     HashNode<ItemType> *pCur = bucketHead->getNext(); // Skip sentinel node
+
     while (pCur != bucketHead && pCur->getItem() < query)
         pCur = pCur->getNext();
+
+    if (pCur == bucketHead)
+        return nullptr;
 
     if (pCur->getItem() == query)
         return pCur;

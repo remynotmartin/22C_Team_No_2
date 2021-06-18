@@ -48,7 +48,7 @@ private:
 };
 
 // One of the pertinent hash table statistics, space utilization is the ratio
-// between used buckets unused buckets.
+// between used buckets and unused buckets.
 //
 // 100.00 * [non-empty buckets] / [total available buckets]
 //
@@ -108,6 +108,7 @@ bool HashTable<ItemType>::insert(ListNode<ItemType> *itemPtr)
     // Grab item from the item pointer, then extract its name
     string   key    = itemPtr->getItem().getName();
     unsigned bucket = _hash(key);
+
 
     // Allocate new HashNode<ItemType>
     HashNode<ItemType> *newItemNode = new HashNode<ItemType>(itemPtr);

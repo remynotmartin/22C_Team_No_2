@@ -48,9 +48,11 @@ int main()
     HashTable<Country>        nameTable;
     BinarySearchTree<Country> langTree;
 
+
     // Read primary input data
     if (!fileRead(coreDataList, nameTable, langTree))
         return 1;
+
 
     int userChoice = -1; 
     mainMenu();
@@ -222,10 +224,12 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
             delete newDataNode; 
         }
 
+
         if (!nameTable.insert(newDataNode))
         {
             std::cout << "Could not insert " << temp.getName() << " into the hash table." << std::endl;
         }
+
 
         if (!langTree.insertBST(newDataNode, compareLang))
         {
