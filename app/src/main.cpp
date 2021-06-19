@@ -36,7 +36,8 @@ const std::string  inputFilename = "./data/primaryData.csv";
 const std::string outputFilename = "./data/database.csv";
 
 // Function to be passed into the BST functions so that they make proper comparisons.
-unsigned compareLang          (const Country&, const Country&); 
+unsigned compareLang          (const Country&, const Country&);
+unsigned compareLangQuery     (const Country&, const std::string &);
 void     visitBST_Node        (const BinaryNode<Country>*);
 void     visitBST_Node_indent (const BinaryNode<Country>*, const unsigned level);
 
@@ -79,6 +80,7 @@ int main()
                 searchLang(langTree);
                 break;
             case 5: // List countries sorted by language (use BST in-order traversal)
+                langTree.inOrder();
                 break;
             case 6: // Write Data to File
                 break;
@@ -391,7 +393,7 @@ void searchLang (BinarySearchTree<Country> &langTree)
     std::cin.ignore();
     std::getline(std::cin, query);
 
-    langTree.inOrder_query(query);
+    langTree.inOrder_query(compareLangQuery, query);
 }
 
 void hashStats (HashTable<Country> &nameTable)
@@ -443,6 +445,26 @@ unsigned compareLang(const Country &lhs, const Country &rhs)
     if (lhs.getLanguage() == rhs.getLanguage())
         return 0;
     if (lhs.getLanguage() >  rhs.getLanguage())
+        return 1;
+    return 2;
+}
+
+
+/* compareLangQuery()
+ * This function is passed into the BST member function calls so that the BST can make the proper
+ * comparisons between the secondary key of a Country object with that of a query string without
+ * having to transfer the string into some sort of dummy Country object.
+ *
+ * Return values at a glance:
+ *  lhs == rhs : return 0
+ *  lhs >  rhs : return 1
+ *  lhs <  rhs : return 2
+ */
+unsigned compareLangQuery(const Country &lhs, const std::string &queryStr)
+{
+    if (lhs.getLanguage() == queryStr)
+        return 0;
+    if (lhs.getLanguage() >  queryStr)
         return 1;
     return 2;
 }

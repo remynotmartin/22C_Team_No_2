@@ -25,10 +25,7 @@ private:
 public:
 	// constructors
 	BinaryNode(ListNode<ItemType> *anItemPtr) { dataPtr = anItemPtr; leftPtr = nullptr; rightPtr = nullptr; }
-	BinaryNode(ListNode<ItemType> *anItemPtr, 
-		       BinaryNode<ItemType> *left, 
-			   BinaryNode<ItemType> *right) { dataPtr = anItemPtr; leftPtr = left; rightPtr = right;}
-    ~BinaryNode() {}
+	~BinaryNode() {}
 
 	// setters
 	void setDataPtr  (ListNode<ItemType>   *aDataPtr) { dataPtr  = aDataPtr; }

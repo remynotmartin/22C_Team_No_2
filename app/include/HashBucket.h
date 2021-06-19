@@ -10,23 +10,23 @@
 #ifndef HASH_BUCKET
 #define HASH_BUCKET
 
-#include "LinkedList.h"
 #include "HashNode.h"
 
 template<class ItemType>
-class HashBucket : public LinkedList<ItemType>
+class HashBucket
 {
 private:
     HashNode<ItemType> *bucketHead;
-    unsigned length;
+    unsigned            itemCount;
 
 public:
     HashBucket();
     ~HashBucket();
 
     // Getters
-    unsigned getCollisionCount() const { return (length == 0) ? 0 : length - 1; } // First item isn't a collision!
-    // getLength() inherited from LinkedList
+    unsigned getCollisionCount () const { return (itemCount == 0) ? 0 : (itemCount - 1); } // First item isn't a collision!
+    unsigned getItemCount      () const { return itemCount; }
+
 
     // Utilities
     bool                insertItem (HashNode<ItemType> *inputNode);
@@ -42,7 +42,7 @@ HashBucket<ItemType>::HashBucket()
 
     bucketHead = new HashNode<ItemType>; // Allocate sentinel node,
     bucketHead->setNext(bucketHead);     // Point at self, "Snake eats its tail"
-    length = 0u;
+    itemCount = 0u;
 }
 
 template<class ItemType>
@@ -84,7 +84,7 @@ bool HashBucket<ItemType>::insertItem(HashNode<ItemType> *inputNode)
     // "Weave" the new node into the bucket
     pPre->setNext(inputNode);
     inputNode->setNext(pCur);
-    length++;                 // Increment bucket's length (not the table's)
+    itemCount++;
     return true;
 }
 
@@ -113,7 +113,7 @@ bool HashBucket<ItemType>::removeItem(const std::string &query)
         dataPre->setNext(dataPtr->getNext()); // Patch previous node to successor
         dataPtr->setNext(nullptr);            // Disconnect queried node
         delete dataPtr;                       // Wipe the queried node
-        length--;                             // Decrement bucket's length (not the table's)
+        itemCount--;
     }
 
     return true;
@@ -123,7 +123,7 @@ bool HashBucket<ItemType>::removeItem(const std::string &query)
 template<class ItemType>
 HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
 {
-    if (length == 0)
+    if (itemCount == 0)
         return nullptr;
     HashNode<ItemType> *pCur = bucketHead->getNext(); // Skip sentinel node
 

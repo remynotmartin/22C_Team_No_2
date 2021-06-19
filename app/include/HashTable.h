@@ -7,7 +7,7 @@
 #include <string> // Needed by the _hash() function
 #include "ListNode.h"
 
-#include "HashBucket.h" // Inherits from LinkedList
+#include "HashBucket.h"
 
 using std::string;
 

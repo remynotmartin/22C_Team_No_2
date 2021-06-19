@@ -5,6 +5,7 @@
 #ifndef _BINARY_SEARCH_TREE
 #define _BINARY_SEARCH_TREE
 
+#include <string>
 #include "BinaryNode.h" // A "meta-node", so to speak; already includes "ListNode.h"
 
 template<class ItemType>
@@ -25,10 +26,10 @@ public:
     void     clear     ()                                                   { destroyTree(rootPtr); rootPtr = nullptr; count = 0; }
 
     void     inOrder       () const { _inorder(rootPtr); }
-    void     inOrder_query (unsigned compare(const ItemType&, const std::string&)) const { _inorder_query(rootPtr, compare); }
+    void     inOrder_query (unsigned compare(const ItemType&, const std::string&), const std::string query) const { _inorder_query(rootPtr, query, compare); }
 
     // To be used by a secret menu option, prints an indented tree using in-order traversal.
-    void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) { _printTree(visit, rootPtr, 0); }
+    void printTree (void visit(const BinaryNode<ItemType>*, const unsigned)) const { _printTree(visit, rootPtr, 0); }
     
     // insert a node at the correct location
     bool insertBST (ListNode<ItemType> *itemPtr, unsigned compare(const ItemType&, const ItemType&));
@@ -45,9 +46,9 @@ public:
 private:
 
     // internal traverse
-    void _inorder       (BinaryNode<ItemType> *nodePtr, unsigned compare() const;
-    void _inorder_query (BinaryNode<ItemType> *nodePtr, unsigned compare() const;
-    void _printTree     (void visit(const BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType>* nodePtr, const unsigned level) const;
+    void _inorder       (BinaryNode<ItemType> *nodePtr) const;
+    void _inorder_query (BinaryNode<ItemType> *nodePtr, const std::string &query, unsigned compare(const ItemType&, const std::string&)) const;
+    void _printTree     (void visit(const BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType> *nodePtr, const unsigned level) const;
 
     // internal insert node: insert newNode in nodePtr subtree
     void _insert (BinaryNode<ItemType> *nodePtr, BinaryNode<ItemType> *newNode, unsigned compare(const ItemType&, const ItemType&));
@@ -76,7 +77,6 @@ bool BinarySearchTree<ItemType>::insertBST(ListNode<ItemType> *newEntry, unsigne
     // The constructor points the new node's dataPtr directly to the data
     // node that was passed in.
     BinaryNode<ItemType>* newNodePtr = new BinaryNode<ItemType>(newEntry);
-
     _insert(rootPtr, newNodePtr, compare);
     count++;
     return true;
@@ -145,17 +145,18 @@ void BinarySearchTree<ItemType>::destroyBST(BinaryNode<ItemType>* treeRoot)
 //  lhs <  rhs : return 2
 //
 template<class ItemType>
-void BinarySearchTree<ItemType>::_insert(BinaryNode<ItemType> *treeRoot,
+void BinarySearchTree<ItemType>::_insert(BinaryNode<ItemType> *subTreeRoot,
                                          BinaryNode<ItemType> *newNodePtr,
                                          unsigned              compare(const ItemType&, const ItemType&))
 {
-    BinaryNode<ItemType> *pCur = treeRoot;
     
-    if (!treeRoot) // == NULL
+    if (rootPtr == nullptr) // == NULL
     {
-        treeRoot = newNodePtr;
+        rootPtr = newNodePtr;
         return;
     }
+
+    BinaryNode<ItemType> *pCur = subTreeRoot;
 
     unsigned compResult = compare(pCur->getData(), newNodePtr->getData());
 
@@ -309,12 +310,45 @@ void BinarySearchTree<ItemType>::_inorder(BinaryNode<ItemType>* nodePtr) const
     if (nodePtr) // != NULL
     {
         _inorder(nodePtr->getLeftPtr());
-        // Simple visit
+
+        // Simple visit, though if one wants to be more intricate in the future,
+        // admittedly, using a visit() function pointer would be more versatile.
         std::cout << nodePtr->getData();
+
         _inorder(nodePtr->getRightPtr());
     }
 }
 
+
+// [ Remy's notes from Final Integration Phase ]
+// Function created to fulfill language query function, where the database will display all
+// items that match the secondary key query in the BST.
+//
+// Difference from standard in-order traversal is that there is a conditional check before visit.
+//
+// The compare(lhs, rhs) function passed in from main() for this project returns these values:
+//  lhs == rhs : return 0
+//  lhs >  rhs : return 1
+//  lhs <  rhs : return 2
+//
+
+//
+template<class ItemType>
+void BinarySearchTree<ItemType>::_inorder_query (BinaryNode<ItemType> *nodePtr,
+                                                 const std::string    &query,
+                                                 unsigned              compare(const ItemType&, const std::string&)) const
+{
+    if (nodePtr) // != NULL
+    {
+        _inorder_query(nodePtr->getLeftPtr(), query, compare);
+
+        if (compare(nodePtr->getData(), query) == 0) // Case of a match, so we visit the node
+            std::cout << nodePtr->getData();
+
+        _inorder_query(nodePtr->getRightPtr(), query, compare);
+    }
+
+}
     
 // [ Remy's notes from Integration Purgatory ]
 //  - Adjusted the visit() function parameters
@@ -323,9 +357,7 @@ void BinarySearchTree<ItemType>::_inorder(BinaryNode<ItemType>* nodePtr) const
 // This might get rather chunky, depending on how deep the tree goes, and how wide one's terminal is.
 //
 template<class ItemType>
-void BinarySearchTree<ItemType>::_printTree (void                  visit (BinaryNode<ItemType>*, const unsigned),
-                                             BinaryNode<ItemType> *nodePtr,
-                                             const unsigned        level) const
+void BinarySearchTree<ItemType>::_printTree (void visit (const BinaryNode<ItemType>*, const unsigned), BinaryNode<ItemType> *nodePtr, const unsigned level) const
 {
     if(isEmpty())
     {
