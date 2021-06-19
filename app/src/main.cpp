@@ -29,7 +29,8 @@ void searchName   (HashTable<Country>&);
 void searchLang   (BinarySearchTree<Country>&);
 void hashStats    (HashTable<Country>&);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country>&, BinarySearchTree<Country>&);
-void writeToFile  (const std::string outputFilename, LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
+void writeToFile  (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
+void endProgram   (LinkedList<Country> &coreDataList);
 void levelIndent  (const unsigned level);
 
 // These paths assume program is run from project root.
@@ -84,7 +85,7 @@ int main()
                 langTree.inOrder();
                 break;
             case 6: // Write Data to File
-                writeToFile(outputFilename, coreDataList, undoStack);
+                writeToFile(coreDataList, undoStack);
                 break;
             case 7: // Output Hash Table Statistics
                 hashStats(nameTable);
@@ -96,9 +97,8 @@ int main()
                 mainMenu();
                 break;
             case 0:
-                std::cout << "Terminating program..." << std::endl;
+                endProgram(coreDataList);
                 break;
-
             case 42: // Display group member names (Hidden option)
                 teamNames();
                 break;
@@ -170,7 +170,7 @@ void teamNames()
     std::cout << "##########################################" << std::endl;
     std::cout << "  Remy Dinh - Coordination and Integration" << std::endl;
     std::cout << "Shun Furuya - Hash List Algorithms"         << std::endl;
-    std::cout << " Mahik Kaur - Screen Output"                << std::endl;
+    std::cout << " Mahik Kaur - Screen & File Output"         << std::endl;
     std::cout << "Taeyoon Kim - BST Algorithms"               << std::endl;
     std::cout << "##########################################" << std::endl;
 }
@@ -231,18 +231,11 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
             // Record was rejected, so since we allocated a node for this record, we need to clean it up.
             delete newDataNode; 
         }
-
-
         if (!nameTable.insert(newDataNode))
-        {
             std::cout << "Could not insert " << temp.getName() << " into the hash table." << std::endl;
-        }
-
 
         if (!langTree.insertBST(newDataNode, compareLang))
-        {
             std::cout << "Could not insert " << temp.getName() << " into the BST." << std::endl;
-        }
 
     }
     inputFile.close();
@@ -324,6 +317,7 @@ void addData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
     std::cout << "Okay, " << nameIn << " has been added to the database.\n" << std::endl;
 }
 
+
 // Removes item from coreDataList and places it onto the undoStack.
 // Will also call BST and HashTable's respective functions to break the links
 // to their respective indirect nodes.
@@ -344,20 +338,20 @@ void removeData (LinkedList<Country> &coreDataList, HashTable<Country> &nameTabl
         return;
     }
 
-    ListNode<Country> *auxHolder = coreDataList.searchList(query);
+    ListNode<Country> *holder = coreDataList.searchList(query);
     // Break the links in the BST and Hash Table first
     if (!nameTable.remove(query))
     {
         std::cout << "Unable to remove " << query << " from hash table." << std::endl;
         return;
     }
-    if (!langTree.removeBST(auxHolder, compareLang))
+    if (!langTree.removeBST(holder, compareLang))
     {
         std::cout << "Unable to remove " << query << " from BST." << std::endl;
         return;
     }
 
-    ListNode<Country> *holder = coreDataList.removeItem(query);
+    holder = coreDataList.removeItem(query);
     undoStack.push(holder); // Push removed item onto stack
     std::cout << query << " was removed from the database." << std::endl;
 }
@@ -385,6 +379,7 @@ void searchName (HashTable<Country> &nameTable)
     return;
 }
 
+
 // This function invokes a special in-order traversal of the BST that only visits a node
 // if its language key matches that of the query.
 // OPCODE 4
@@ -398,6 +393,7 @@ void searchLang (BinarySearchTree<Country> &langTree)
     langTree.inOrder_query(compareLangQuery, query);
 }
 
+
 void hashStats (HashTable<Country> &nameTable)
 {
     std::cout << ":---------------------:" << std::endl;
@@ -410,6 +406,7 @@ void hashStats (HashTable<Country> &nameTable)
     std::cout << "    Space Utilization: " << nameTable.getSpaceUtil() << "%" << std::endl;
     std::cout << " Longest Chain Length: " << nameTable.getLongestChain() << " item(s)" << std::endl;
 }
+
 
 // Pops latest removed item from the undoStack, and reinserts it into the coreDataList,
 // and will call upon the BST and Hash Table functions to reestablish links.
@@ -436,15 +433,28 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, H
 // This function writes all records currently in the coreDataList to an output file as specified by its
 // argument, then wipes the deletion stack.
 //
-void writeToFile  (const std::string outputFilename, LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
+void writeToFile  (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
 {
-    coreDataList.outputItems(outputFilename);
+    coreDataList.outputItems(outputFilename); // outputFilename is a named constant here in main.cpp
     undoStack.clear();
 
     std::cout << std::endl;
     std::cout << "Database successfully written to file: " << outputFilename << std::endl;
     std::cout << "Note: the undo deletion stack has been cleared." << std::endl << std::endl;
 }
+
+
+void endProgram (LinkedList<Country> &coreDataList)
+{
+    std::cout << "Writing records to output file: " << outputFilename << "..." << std::endl;
+    coreDataList.outputItems(outputFilename);
+    std::cout << "Write successful." << std::endl;
+    std::cout << "Terminating application." << std::endl;
+    std::cout << std::endl;
+    std::cout << "Have a great day!" << std::endl;
+    std::cout << std::endl;
+}
+
 
 /* compareLang()
  * This function is passed into the BST member function calls so that the BST can make the proper
