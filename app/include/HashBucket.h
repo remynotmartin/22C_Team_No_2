@@ -29,10 +29,13 @@ public:
 
 
     // Utilities
+    bool                isEmpty    ()                               const { return itemCount == 0; }
     bool                insertItem (HashNode<ItemType> *inputNode);
     bool                removeItem (const std::string  &query);
     HashNode<ItemType>* searchItem (const std::string  &query);
 
+    // Added to simplify rehashing operation
+    HashNode<ItemType>* popItem    ();
 };
 
 template<class ItemType>
@@ -50,12 +53,16 @@ HashBucket<ItemType>::~HashBucket()
 {
     HashNode<ItemType> *terminator = bucketHead->getNext(), // Jump past the sentinel node
                        *nextNode   = terminator->getNext();
-    while (terminator != bucketHead)
+    
+    while (terminator != bucketHead) // Terminator is on a real/non-sentinel node
     {
+        
         delete terminator;
         terminator = nextNode;
-        nextNode   = nextNode->getNext();
+        nextNode   = terminator->getNext();
+
     }
+
     // Now that we're back at the sentinel node, get rid of it.
     delete terminator;
 }
@@ -64,16 +71,8 @@ HashBucket<ItemType>::~HashBucket()
 template<class ItemType>
 bool HashBucket<ItemType>::insertItem(HashNode<ItemType> *inputNode)
 {
-    if (searchItem(inputNode->getItem().getName()) != nullptr)
-    {
-        std::cout << "This item already exists in the table!" << std::endl;
-        return false;
-    }
-
-    HashNode<ItemType> *pCur,
-                       *pPre;
-    pPre = bucketHead;         // pre starts at sentinel node
-    pCur = bucketHead->getNext();
+    HashNode<ItemType> *pCur = bucketHead,            // pre starts at sentinel node
+                       *pPre = bucketHead->getNext();
 
     while (pCur != bucketHead && inputNode->getItem() > pCur->getItem())
     {
@@ -137,6 +136,28 @@ HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
         return pCur;
 
     return nullptr; // Item's not in the bucket!
+}
+
+
+// Implemented by Remy to simplify the rehash operation
+//
+template<class ItemType>
+HashNode<ItemType>* HashBucket<ItemType>::popItem()
+{
+    if (bucketHead == bucketHead->getNext()) // Only sentinel node remains.
+        return nullptr;
+
+    HashNode<ItemType> *topItem = bucketHead->getNext();
+
+    // bucketHead points directly to the sentinel node, so point that
+    // sentinel node to the next item (if there is any)
+    bucketHead->getNext()->setNext(topItem->getNext());
+
+    // Disconnect topItem from the bucket
+    topItem->setNext(nullptr);
+
+    itemCount--;
+    return topItem;
 }
 
 #endif

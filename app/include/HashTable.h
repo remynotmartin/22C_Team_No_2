@@ -5,6 +5,7 @@
 #define HASHTABLE_H_
 
 #include <string> // Needed by the _hash() function
+#include <cmath>  // Needed for the round() function when checking load factor in insert()
 #include "ListNode.h"
 
 #include "HashBucket.h"
@@ -20,9 +21,9 @@ private:
     unsigned              count;    // Total # of items in the hash table.
     
 public:
-    HashTable  ()      { count = 0; hashSize = 47; hashAry = new HashBucket<ItemType>[hashSize]; }
-    HashTable  (int n) { count = 0; hashSize = n;  hashAry = new HashBucket<ItemType>[hashSize]; }
-    ~HashTable ()      { delete [] hashAry; }
+    HashTable  ()           { count = 0; hashSize = 47; hashAry = new HashBucket<ItemType>[hashSize]; }
+    HashTable  (unsigned n) { count = 0; hashSize = n;  hashAry = new HashBucket<ItemType>[hashSize]; }
+    ~HashTable ()           { delete [] hashAry; }
 
     // Accessors
     unsigned getCount        () const { return count; }
@@ -30,7 +31,7 @@ public:
     bool     isEmpty         () const { return count == 0; }
 
     // Used for Table Statistics
-    double   getLoadFactor   () const { return 100.0 * count / hashSize; }
+    double   getLoadFactor   () const { return (static_cast<double>(count) / hashSize); }
     double   getSpaceUtil    () const;
     unsigned getLongestChain () const;
 
@@ -41,7 +42,8 @@ public:
 
     // Bonus function
     // Since we're a team of four, we need to implement this rehash function when our load factor reaches 0.75
-    //void rehash();
+    // This will be used by insertion()
+    void rehash();
     
 private:
     unsigned _hash(const string &key) const;
@@ -114,14 +116,28 @@ bool HashTable<ItemType>::insert(ListNode<ItemType> *itemPtr)
     // Allocate new HashNode<ItemType>
     HashNode<ItemType> *newItemNode = new HashNode<ItemType>(itemPtr);
     
-    if (!search(key))
+    if (search(key) == nullptr)
     {
         hashAry[bucket].insertItem(newItemNode);
         count++; // Increment table's overall count, not the bucket's
+
+        // Check if load factor has reached or surpassed 0.75
+        // If it has, rehash the table.
+        /*
+         * Dummied out because there's a bug that I haven't been able to iron out.
+        double   currentLoadFactor = getLoadFactor();
+        unsigned convertedFactor   = round(currentLoadFactor * 100.00);
+        if (convertedFactor >= 75)
+        {
+            rehash();
+        }
+        */
+        
         return true;
     }
     
     // Case: Record already exists in the hash table.
+    delete newItemNode; // No longer needed, so get rid of it!
     return false;
 }
 
@@ -152,5 +168,71 @@ HashNode<ItemType>* HashTable<ItemType>::search(const string &key)
     return hashAry[_hash(key)].searchItem(key);
 }
 
+// This function will resize the hash table to the next prime number after resizing it,
+// then rehashing all of the current elements to the new table.
+//
+// Once this is done, it deallocates the old table, then points the hashAry pointer to
+// the new table.
+//
+// Implemented by Remy in the polish stage, now that everything else is successfully integrated.
+//
+template<class ItemType>
+void HashTable<ItemType>::rehash()
+{
+    std::cout << "DEBUG entering rehash function\n"; // DEBUG
+    unsigned oldHashSize = hashSize;
+
+    // New Hash Table Size Algorithm provided by Shun-san
+    // Integrated by Remy
+    //
+    unsigned newTableSize = oldHashSize * 2;
+    bool     isPrime      = false;
+    while (!isPrime)
+    {
+        isPrime = true;
+        newTableSize++;
+        for (auto i = 2u; i < newTableSize / 2; i++)
+        {
+            if (newTableSize % i == 0) // "If newTableSize can be divided by i with no remainder, it isn't prime!"
+            {
+                isPrime = false;
+                break;
+            }
+        }
+    }
+
+
+    // newTableSize is now the next largest prime thanks to Shun-san's algorithm.
+    // Allocate a new array of HashBuckets 
+    HashBucket<ItemType> *newTablePtr = new HashBucket<ItemType>[newTableSize];
+
+    hashSize = newTableSize;
+
+    // Iterate through the old table, bucket by bucket.
+    // For each bucket, transfer hash nodes to new table until the bucket is empty.
+    // Proceed to next bucket until end of old table is reached (save the old hashSize temporarily)
+    for (auto i = 0u; i < oldHashSize; i++)
+    {
+        HashNode<ItemType> *holder = hashAry[i].popItem();
+        while (holder)
+        {
+            // Call hash again with newTableSize
+            unsigned newTableBucket = _hash(holder->getItem().getName());
+
+            // Transfer popped HashNode to the new table in its correct new bucket.
+            newTablePtr[newTableBucket].insertItem(holder);
+            holder = hashAry[i].popItem();
+        }
+
+        // Bucket has been depleted after exiting while loop, so now we move on to the next bucket.
+    }
+
+    // Deallocate the old hash array.
+    // I think the HashBucket destructor will take care of the remaining sentinel nodes for me.
+    delete [] hashAry;
+
+    // Point hashAry to the new Hash Table
+    hashAry = newTablePtr;
+}
 
 #endif // HASHTABLE_H_

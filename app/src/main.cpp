@@ -220,6 +220,7 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
 
         Country temp(name, language, population, religion, GDP, area, capital);
         ListNode<Country> *newDataNode = new ListNode<Country>(temp, nullptr);
+
         
         // Insert into coreDataList
         if (!coreDataList.insert(newDataNode))
@@ -231,6 +232,7 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
             // Record was rejected, so since we allocated a node for this record, we need to clean it up.
             delete newDataNode; 
         }
+
         if (!nameTable.insert(newDataNode))
             std::cout << "Could not insert " << temp.getName() << " into the hash table." << std::endl;
 
