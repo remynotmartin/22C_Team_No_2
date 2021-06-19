@@ -4,7 +4,8 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
-#include<string>
+#include <fstream> // For Mahik's outputItems() function.
+#include <string>
 #include "ListNode.h" // For the unified ListNode class template
 
 template<class ItemType>
@@ -19,11 +20,15 @@ public:
     ~LinkedList(); // destructor
 
     // Linked list operations
-    unsigned            getLength   ()                               const {return length;}
+    unsigned            getLength   ()                                   const {return length;}
     bool                insert      (ListNode<ItemType> *inputDataNode);
-    ListNode<ItemType> *searchList  (const std::string&)             const;
+    ListNode<ItemType> *searchList  (const std::string&)                 const;
     ListNode<ItemType> *removeItem  (const std::string &target);
-    void                displayList ()                               const;
+    void                displayList ()                                   const;
+
+    // File I/O utility function implemented by Mahik, and integrated by Remy.
+    void                outputItems (const std::string &outputFilename)  const;
+                                    
 };
 
 template <class ItemType>
@@ -152,6 +157,62 @@ void LinkedList<ItemType>::displayList() const
         wanderer = wanderer->getNext();
         itemCount++;
     }
+}
+
+
+//             Implemented by: Mahik
+// Integration adjustments by: Remy
+//
+// This function outputs all records of the coreDataList to an output file. Originally Mahik had the 
+// name of the output file included here in the LinkedList header file, but I changed it to be an argument
+// from the function caller.
+//
+// Mahik originally passed in a lot of variables, but I decided to just make them local to the function
+// since they're just buffers for item data members.
+//
+// I also added a file open check for good measure.
+//
+template <class ItemType>
+void LinkedList<ItemType>::outputItems(const std::string &outputFilename) const
+{
+     ListNode<ItemType> *pCur;  // To move through the list
+
+     // Position pCur: skip the sentinel node of the list.
+     pCur = head->getNext();
+
+     std::ofstream outputFile(outputFilename);
+     if (!outputFile)
+     {
+         std::cerr << "Failed to open output file " << outputFilename << " for record write. Aborting process." << std::endl;
+         return;
+     }
+
+     // Buffer variables
+     std::string name       = "",
+                 language   = "",
+                 religion   = "",
+                 capital    = "";
+     double      GDP        = 0.0,
+                 area       = 0.0;
+     unsigned    population = 0u;
+
+     while (pCur != head)
+     {
+          // Data out
+          name       = pCur->getItem().getName();
+          language   = pCur->getItem().getLanguage();
+          population = pCur->getItem().getPopulation();
+          religion   = pCur->getItem().getMajorReligion();
+          GDP        = pCur->getItem().getGDP();
+          area       = pCur->getItem().getSurfaceArea();
+          capital    = pCur->getItem().getCapitalCity();
+
+          outputFile << name << ";" << language << ";" << population << ";" << religion << ";" << GDP << ";" << area << ";" << capital << std::endl;
+
+          // Move to the next node.
+         pCur = pCur->getNext();
+     }
+    outputFile.close();
 }
 
 #endif

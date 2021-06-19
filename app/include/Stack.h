@@ -31,7 +31,7 @@ public:
 
     ListNode<ItemType> *pop      ();
     void                push     (ListNode<ItemType> *inputDataPtr);
-    bool                clear    ();
+    void                clear    ();
 };
 
 template <typename ItemType>
@@ -56,11 +56,13 @@ Stack<ItemType>::~Stack()
 
 }
 
+// Uses a holder (durak) to hold items as they're popped off the stack,
+// and deletes them accordingly.
 template <typename ItemType>
-bool Stack<ItemType>::clear()
+void Stack<ItemType>::clear()
 {
     if (isEmpty())
-        return false;
+        return; 
 
     ListNode<ItemType> *durak;
     while (top != nullptr)
@@ -69,7 +71,6 @@ bool Stack<ItemType>::clear()
         delete durak;
         count--;
     }
-    return true;
 }
 
 template <typename ItemType>

@@ -29,6 +29,7 @@ void searchName   (HashTable<Country>&);
 void searchLang   (BinarySearchTree<Country>&);
 void hashStats    (HashTable<Country>&);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country>&, BinarySearchTree<Country>&);
+void writeToFile  (const std::string outputFilename, LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
 void levelIndent  (const unsigned level);
 
 // These paths assume program is run from project root.
@@ -83,6 +84,7 @@ int main()
                 langTree.inOrder();
                 break;
             case 6: // Write Data to File
+                writeToFile(outputFilename, coreDataList, undoStack);
                 break;
             case 7: // Output Hash Table Statistics
                 hashStats(nameTable);
@@ -403,8 +405,9 @@ void hashStats (HashTable<Country> &nameTable)
     std::cout << ":---------------------:" << std::endl;
     std::cout << "          Total Items: " << nameTable.getCount()      << std::endl;
     std::cout << "           Table Size: " << nameTable.getSize()       << std::endl;
+    std::cout << std::fixed << std::setprecision(2);
     std::cout << "          Load Factor: " << nameTable.getLoadFactor() << std::endl;
-    std::cout << "    Space Utilization: " << nameTable.getSpaceUtil()  << std::endl;
+    std::cout << "    Space Utilization: " << nameTable.getSpaceUtil() << "%" << std::endl;
     std::cout << " Longest Chain Length: " << nameTable.getLongestChain() << " item(s)" << std::endl;
 }
 
@@ -430,6 +433,18 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, H
     std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
 }
 
+// This function writes all records currently in the coreDataList to an output file as specified by its
+// argument, then wipes the deletion stack.
+//
+void writeToFile  (const std::string outputFilename, LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
+{
+    coreDataList.outputItems(outputFilename);
+    undoStack.clear();
+
+    std::cout << std::endl;
+    std::cout << "Database successfully written to file: " << outputFilename << std::endl;
+    std::cout << "Note: the undo deletion stack has been cleared." << std::endl << std::endl;
+}
 
 /* compareLang()
  * This function is passed into the BST member function calls so that the BST can make the proper

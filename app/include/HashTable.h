@@ -58,9 +58,10 @@ template<class ItemType>
 double HashTable<ItemType>::getSpaceUtil() const
 {
     unsigned usedBuckets = 0u;
-    for (unsigned i = 0u; i< hashSize; i++)
+    for (unsigned i = 0u; i < hashSize; i++)
     {
-        if (hashAry[i].getLength() > 0)
+        //std::cout << "Bucket " << i << " has " << hashAry[i].getItemCount() << " items." << std::endl;
+        if (hashAry[i].getItemCount() > 0)
             usedBuckets++;
     }
     return 100.00 * usedBuckets / hashSize;
@@ -76,8 +77,8 @@ unsigned HashTable<ItemType>::getLongestChain() const
     unsigned longest = 0u;
     for (unsigned i = 0u; i < hashSize; i++)
     {
-        if (hashAry[i].getLength() > longest)
-            longest = hashAry[i].getLength();
+        if (hashAry[i].getItemCount() > longest)
+            longest = hashAry[i].getItemCount();
     }
     return longest;
 }
