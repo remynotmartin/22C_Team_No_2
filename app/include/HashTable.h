@@ -40,6 +40,9 @@ public:
     bool                remove ( const string &key );
     HashNode<ItemType>* search ( const string &key );
 
+    // Used to output to file
+    bool outputItems(const string &outputFilename) const;
+
     // Bonus function
     // Since we're a team of four, we need to implement this rehash function when our load factor reaches 0.75
     // This will be used by insertion()
@@ -84,6 +87,7 @@ unsigned HashTable<ItemType>::getLongestChain() const
     }
     return longest;
 }
+
 
 /* Basic Hash Algorithm to get an indexing value from a
  * C++ std::string key.
@@ -152,6 +156,24 @@ bool HashTable<ItemType>::remove(const string &key)
     return false;
 }
 
+// Added by Remy in an emergency patch after I realized I forgot to output items in hash table order,
+// rather than the order of the hash table.
+//
+template<class ItemType>
+bool HashTable<ItemType>::outputItems(const string &outputFilename) const
+{
+    std::ofstream outputFile(outputFilename);
+    if (!outputFile)
+    {
+        std::cerr << "Could not open output file " << outputFilename << " for writing!" << std::endl;
+        return false;
+    }
+    for (auto i = 0u; i < hashSize; i++)
+        hashAry[i].writeToFile(outputFile);
+    return true;
+}
+
+
 // Searches through a particular bucket (which itself is LinkedList of HashNodes
 //
 /* Remy's integration notes:
@@ -162,6 +184,7 @@ HashNode<ItemType>* HashTable<ItemType>::search(const string &key)
 {
     return hashAry[_hash(key)].searchItem(key);
 }
+
 
 // This function will resize the hash table to the next prime number after resizing it,
 // then rehashing all of the current elements to the new table.
@@ -174,7 +197,6 @@ HashNode<ItemType>* HashTable<ItemType>::search(const string &key)
 template<class ItemType>
 void HashTable<ItemType>::rehash()
 {
-    //std::cout << "DEBUG entering rehash function\n"; // DEBUG
     unsigned oldHashSize = hashSize;
 
     // New Hash Table Size Algorithm provided by Shun-san
@@ -196,8 +218,6 @@ void HashTable<ItemType>::rehash()
         }
     }
 
-    //std::cout << "DEBUG newTableSize found: " << newTableSize << "\n"; // DEBUG
-
     // newTableSize is now the next largest prime thanks to Shun-san's algorithm.
     // Allocate a new array of HashBuckets 
     HashBucket<ItemType> *newTablePtr = new HashBucket<ItemType>[newTableSize];
@@ -205,14 +225,12 @@ void HashTable<ItemType>::rehash()
     // Update hashSize, since we have the original hash size saved in oldHashSize
     hashSize = newTableSize;
 
-    //std::cout << "DEBUG Beginning rehash of old buckets...\n"; // DEBUG
 
     // Iterate through the old table, bucket by bucket.
     // For each bucket, transfer hash nodes to new table until the bucket is empty.
     // Proceed to next bucket until end of old table is reached (save the old hashSize temporarily)
     for (auto i = 0u; i < oldHashSize; i++)
     {
-        //std::cout << "DEBUG Going into bucket " << i << "...\n"; // DEBUG
         HashNode<ItemType> *holder = hashAry[i].popItem();
         while (holder != nullptr)
         {
@@ -224,20 +242,15 @@ void HashTable<ItemType>::rehash()
             // Transfer popped HashNode to the new table in its correct new bucket.
             newTablePtr[newBucket].insertItem(holder);
             holder = hashAry[i].popItem();
-            //std::cout << "DEBUG Popped another item from bucket " << i << "...\n"; // DEBUG
         }
-
         // Bucket has been depleted after exiting while loop, so now we move on to the next bucket.
     }
 
-    //std::cout << "DEBUG Done rehashing old buckets.\n"; // DEBUG
 
-    //std::cout << "DEBUG Attempting to delete old hashAry...\n"; // DEBUG
     // Deallocate the old hash array.
     // I think the HashBucket destructor will take care of the remaining sentinel nodes for me.
     delete [] hashAry;
     
-    //std::cout << "DEBUG Successfully removed old hashAry...\n"; // DEBUG
 
     // Point hashAry to the new Hash Table
     hashAry = newTablePtr;

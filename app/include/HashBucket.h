@@ -10,6 +10,9 @@
 #ifndef HASH_BUCKET
 #define HASH_BUCKET
 
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 #include "HashNode.h"
 
 template<class ItemType>
@@ -36,6 +39,9 @@ public:
 
     // Added to simplify rehashing operation
     HashNode<ItemType>* popItem    ();
+
+    // Added to simplify file write
+    void writeToFile(std::ofstream &outputFile);
 };
 
 template<class ItemType>
@@ -164,6 +170,34 @@ HashNode<ItemType>* HashBucket<ItemType>::popItem()
 
     itemCount--;
     return frontItem;
+}
+
+// Implemented by Remy in polish phase to simplify file write function
+//
+// Writes each record as new line.
+//
+template<class ItemType>
+void HashBucket<ItemType>::writeToFile(std::ofstream &outputFile)
+{
+    HashNode<ItemType> *wanderer = bucketHead->getNext(); // Skip sentinel node
+
+    // Iterate through the whole bucket until we reach sentinel node
+    while (wanderer != bucketHead)
+    {
+        outputFile << wanderer->getItem().getName() << ",";
+        outputFile << wanderer->getItem().getLanguage() << ",";
+        outputFile << wanderer->getItem().getPopulation() << ",";
+        outputFile << wanderer->getItem().getMajorReligion() << ",";
+
+        outputFile << std::fixed << std::setprecision(2);
+        outputFile << wanderer->getItem().getGDP() << ",";
+        outputFile << wanderer->getItem().getSurfaceArea() << ",";
+        outputFile << wanderer->getItem().getCapitalCity(); // No trailing comma after the last item
+        outputFile << std::endl;
+
+        wanderer = wanderer->getNext();
+    }
+
 }
 
 #endif

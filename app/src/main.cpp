@@ -29,13 +29,13 @@ void searchName   (HashTable<Country>&);
 void searchLang   (BinarySearchTree<Country>&);
 void hashStats    (HashTable<Country>&);
 void undoRemove   (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, HashTable<Country>&, BinarySearchTree<Country>&);
-void writeToFile  (LinkedList<Country> &coreDataList, Stack<Country> &undoStack);
-void endProgram   (LinkedList<Country> &coreDataList);
+void writeToFile  (HashTable<Country> &nameTable, Stack<Country> &undoStack);
+void endProgram   (HashTable<Country> &nameTable);
 void levelIndent  (const unsigned level);
 
 // These paths assume program is run from project root.
-const std::string  inputFilename = "./data/primaryData.csv";
-const std::string outputFilename = "./data/database.csv";
+const std::string  stdInputFile = "./data/primaryData.csv";
+const std::string databaseFile = "./data/database.csv";
 
 // Function to be passed into the BST functions so that they make proper comparisons.
 unsigned compareLang          (const Country&, const Country&);
@@ -85,7 +85,7 @@ int main()
                 langTree.inOrder();
                 break;
             case 6: // Write Data to File
-                writeToFile(coreDataList, undoStack);
+                writeToFile(nameTable, undoStack);
                 break;
             case 7: // Output Hash Table Statistics
                 hashStats(nameTable);
@@ -97,7 +97,7 @@ int main()
                 mainMenu();
                 break;
             case 0:
-                endProgram(coreDataList);
+                endProgram(nameTable);
                 break;
             case 42: // Display group member names (Hidden option)
                 teamNames();
@@ -181,15 +181,25 @@ void teamNames()
 // be changed to accept a filename from a user.
 //
 bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, BinarySearchTree<Country> &langTree)
-{
-    std::ifstream inputFile(inputFilename);
-    if (!inputFile) // Failure to open standard input file
+{ 
+    // This should only work after the first time the program is run, or if a database.csv file is provided.
+    std::ifstream inputFile(databaseFile);
+    std::string usedFile = databaseFile;
+
+    // Failure to open database file, so attempt to read the standard input file
+    if (!inputFile)
     {
-        std::cerr << "Input file " << inputFilename << " could not be read." << std::endl;
-        std::cerr << "Please check for path and filename. Program will now terminate." << std::endl;
-        return false;
+        inputFile.open(stdInputFile);
+        if (!inputFile) // Failure to open standard input file
+        {
+            std::cerr << "Input file " << stdInputFile << " could not be read." << std::endl;
+            std::cerr << "Please check for path and filename. Program will now terminate." << std::endl;
+            return false;
+        }
+        usedFile = stdInputFile;
     }
 
+    
     while (!inputFile.eof())
     {
         std::string lineBuffer;
@@ -225,7 +235,7 @@ bool fileRead(LinkedList<Country> &coreDataList, HashTable<Country> &nameTable, 
         // Insert into coreDataList
         if (!coreDataList.insert(newDataNode))
         {
-            std::cerr << "Duplicate primary key found in file " << inputFilename << "!" << std::endl;
+            std::cerr << "Duplicate primary key found in file " << usedFile << "!" << std::endl;
             std::cerr << "Duplicate record "<< temp.getName() << " has been rejected, but file read will continue." << std::endl;
 
             // Memory leaks make Mr. Bentley an unhappy camper!
@@ -431,29 +441,45 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, H
     }
 }
 
-// This function writes all records currently in the coreDataList to an output file as specified by its
+// This function writes all records in the hash table to an output file as specified by its
 // argument, then wipes the deletion stack.
 //
-void writeToFile  (LinkedList<Country> &coreDataList, Stack<Country> &undoStack)
+void writeToFile (HashTable<Country> &nameTable, Stack<Country> &undoStack)
 {
-    coreDataList.outputItems(outputFilename); // outputFilename is a named constant here in main.cpp
+    if (!nameTable.outputItems(databaseFile)) // databaseFile is a named constant here in main.cpp
+    {
+        std::cerr << "Database file write failure. Terminating process." << std::endl;
+        return; // Failure to write to file
+    }
     undoStack.clear();
 
     std::cout << std::endl;
-    std::cout << "Database successfully written to file: " << outputFilename << std::endl;
+    std::cout << "Database successfully written to file: " << databaseFile << std::endl << std::endl;
+
+    std::cout << "***********************************************";
     std::cout << "Note: the undo deletion stack has been cleared." << std::endl << std::endl;
+    std::cout << "***********************************************";
 }
 
 
-void endProgram (LinkedList<Country> &coreDataList)
+void endProgram (HashTable<Country> &nameTable)
 {
-    std::cout << "Writing records to output file: " << outputFilename << "..." << std::endl;
-    coreDataList.outputItems(outputFilename);
-    std::cout << "Write successful." << std::endl;
-    std::cout << "Terminating application." << std::endl;
     std::cout << std::endl;
-    std::cout << "Have a great day!" << std::endl;
-    std::cout << std::endl;
+    std::cout << "Writing records to output file: " << databaseFile << "..." << std::endl;
+    if (nameTable.outputItems(databaseFile))
+    {
+        std::cout << "Write successful." << std::endl;
+        std::cout << "Terminating application." << std::endl;
+        std::cout << std::endl;
+        std::cout << "Have a great day!" << std::endl;
+        std::cout << std::endl;
+    }
+    else
+    {
+        std::cerr << "It seems that there was an error in writing the database to file." << std::endl;
+        std::cerr << "Please contact your nearest code monkey for assistance." << std::endl;
+        std::cerr << "Have a nice day!" << std::endl;
+    }
 }
 
 
