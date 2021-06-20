@@ -40,7 +40,21 @@
         \begin{enumerate}
             \item{Select hidden option 47. Voila!}
         \end{enumerate}
-    \item{
+    \item{Demonstrate undo delete functionality.}
+        \begin{enumerate}
+            \item{Select option 8, and verify that the undo stack is empty.}
+            \item{Select option 2, and remove Romania.}
+            \item{Select option 3, and verify that Romania cannot be found in the name table.}
+            \item{Select option 4, and verify that Moldova is the only country in the BST with Romanian as a recognized language.}
+            \item{Select option 8, and repeat the above options to verify that Romania has been successfully restored to the database.}
+        \end{enumerate}
+    \item{Verify data write functionality \& UndoStack Wipe}
+        \begin{enumerate}
+            \item{Add a few items manually, and remove a few items manually}
+            \item{Select option 6 to write the state of the database to an output file.}
+            \item{Verify the state of the database output file. (I just realized it's supposed to be in hashTable order)}
+            \item{Try undoing a delete after writing to the output file. It shouldn't work!}
+        \end{enumerate}
 \end{enumerate}
 
 \end{document}
