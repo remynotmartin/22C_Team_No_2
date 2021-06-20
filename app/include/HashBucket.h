@@ -43,36 +43,37 @@ HashBucket<ItemType>::HashBucket()
 {
     //head = nullptr; // Unused old pointer inherited from LinkedList
 
-    bucketHead = new HashNode<ItemType>; // Allocate sentinel node,
+    bucketHead = new HashNode<ItemType>; // Allocate sentinel node, bucketHead points directly to it.
     bucketHead->setNext(bucketHead);     // Point at self, "Snake eats its tail"
     itemCount = 0u;
 }
 
+// This destructor assumes that the hashBucket has at least the sentinel node
+// remaining, otherwise the second line will result in an access violation.
+//
+//  pop() from the bucket until only sentinel node remains, then delete it? lol
+//
 template<class ItemType>
 HashBucket<ItemType>::~HashBucket()
 {
-    HashNode<ItemType> *terminator = bucketHead->getNext(), // Jump past the sentinel node
-                       *nextNode   = terminator->getNext();
-    
-    while (terminator != bucketHead) // Terminator is on a real/non-sentinel node
+     // Pop an item if possible, should return nullptr if only the sentinel node remains.
+    HashNode<ItemType> *terminator = popItem();
+    while (terminator != nullptr)
     {
-        
         delete terminator;
-        terminator = nextNode;
-        nextNode   = terminator->getNext();
-
+        terminator = popItem();
     }
 
-    // Now that we're back at the sentinel node, get rid of it.
-    delete terminator;
+    // Now that the list is clear, only the sentinel node remains, so delete the sentinel node.
+    delete bucketHead;
 }
 
 
 template<class ItemType>
 bool HashBucket<ItemType>::insertItem(HashNode<ItemType> *inputNode)
 {
-    HashNode<ItemType> *pCur = bucketHead,            // pre starts at sentinel node
-                       *pPre = bucketHead->getNext();
+    HashNode<ItemType> *pCur = bucketHead->getNext(),
+                       *pPre = bucketHead;
 
     while (pCur != bucketHead && inputNode->getItem() > pCur->getItem())
     {
@@ -86,6 +87,7 @@ bool HashBucket<ItemType>::insertItem(HashNode<ItemType> *inputNode)
     itemCount++;
     return true;
 }
+
 
 // Unlike with the coreDataList, there's no undo stack for HashNodes in this program,
 // so this function erases nodes, rather than simply disconnecting and returning them.
@@ -122,7 +124,7 @@ bool HashBucket<ItemType>::removeItem(const std::string &query)
 template<class ItemType>
 HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
 {
-    if (itemCount == 0)
+    if (isEmpty())
         return nullptr;
     HashNode<ItemType> *pCur = bucketHead->getNext(); // Skip sentinel node
 
@@ -144,20 +146,22 @@ HashNode<ItemType>* HashBucket<ItemType>::searchItem(const std::string &query)
 template<class ItemType>
 HashNode<ItemType>* HashBucket<ItemType>::popItem()
 {
-    if (bucketHead == bucketHead->getNext()) // Only sentinel node remains.
+    if (isEmpty()) // Only sentinel node remains.
         return nullptr;
 
-    HashNode<ItemType> *topItem = bucketHead->getNext();
+    // topItem points to the item at the front of the list
+    HashNode<ItemType> *frontItem = bucketHead->getNext();
 
     // bucketHead points directly to the sentinel node, so point that
     // sentinel node to the next item (if there is any)
-    bucketHead->getNext()->setNext(topItem->getNext());
+    // bucketHead->getNext()->setNext(frontItem->getNext()); // I'm not sure what I was smoking...
+    bucketHead->setNext(frontItem->getNext());
 
-    // Disconnect topItem from the bucket
-    topItem->setNext(nullptr);
+    // Disconnect frontItem from the current bucket
+    frontItem->setNext(nullptr);
 
     itemCount--;
-    return topItem;
+    return frontItem;
 }
 
 #endif

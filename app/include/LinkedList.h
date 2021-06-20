@@ -44,7 +44,6 @@ LinkedList<ItemType>::LinkedList()
 template <class ItemType>
 LinkedList<ItemType>::~LinkedList()
 {
-    // To be done: Free the list such that no memory leak occurs.
     ListNode<ItemType> *wanderer = head->getNext(),
                        *nextNode = wanderer->getNext();
     while (wanderer != head)
@@ -54,7 +53,7 @@ LinkedList<ItemType>::~LinkedList()
         nextNode = nextNode->getNext();
     }
     // Now that the main nodes are gone, don't forget to delete the sentinel node.
-    delete wanderer;
+    delete head;
 }
 
 

@@ -123,15 +123,10 @@ bool HashTable<ItemType>::insert(ListNode<ItemType> *itemPtr)
 
         // Check if load factor has reached or surpassed 0.75
         // If it has, rehash the table.
-        /*
-         * Dummied out because there's a bug that I haven't been able to iron out.
         double   currentLoadFactor = getLoadFactor();
         unsigned convertedFactor   = round(currentLoadFactor * 100.00);
         if (convertedFactor >= 75)
-        {
             rehash();
-        }
-        */
         
         return true;
     }
@@ -179,7 +174,7 @@ HashNode<ItemType>* HashTable<ItemType>::search(const string &key)
 template<class ItemType>
 void HashTable<ItemType>::rehash()
 {
-    std::cout << "DEBUG entering rehash function\n"; // DEBUG
+    //std::cout << "DEBUG entering rehash function\n"; // DEBUG
     unsigned oldHashSize = hashSize;
 
     // New Hash Table Size Algorithm provided by Shun-san
@@ -201,35 +196,48 @@ void HashTable<ItemType>::rehash()
         }
     }
 
+    //std::cout << "DEBUG newTableSize found: " << newTableSize << "\n"; // DEBUG
 
     // newTableSize is now the next largest prime thanks to Shun-san's algorithm.
     // Allocate a new array of HashBuckets 
     HashBucket<ItemType> *newTablePtr = new HashBucket<ItemType>[newTableSize];
 
+    // Update hashSize, since we have the original hash size saved in oldHashSize
     hashSize = newTableSize;
+
+    //std::cout << "DEBUG Beginning rehash of old buckets...\n"; // DEBUG
 
     // Iterate through the old table, bucket by bucket.
     // For each bucket, transfer hash nodes to new table until the bucket is empty.
     // Proceed to next bucket until end of old table is reached (save the old hashSize temporarily)
     for (auto i = 0u; i < oldHashSize; i++)
     {
+        //std::cout << "DEBUG Going into bucket " << i << "...\n"; // DEBUG
         HashNode<ItemType> *holder = hashAry[i].popItem();
-        while (holder)
+        while (holder != nullptr)
         {
-            // Call hash again with newTableSize
-            unsigned newTableBucket = _hash(holder->getItem().getName());
+            // Call hash; it should return the proper bucket in the new hash table because
+            // hashSize has been updated.
+            std::string key       = holder->getItem().getName();
+            unsigned    newBucket = _hash(key);
 
             // Transfer popped HashNode to the new table in its correct new bucket.
-            newTablePtr[newTableBucket].insertItem(holder);
+            newTablePtr[newBucket].insertItem(holder);
             holder = hashAry[i].popItem();
+            //std::cout << "DEBUG Popped another item from bucket " << i << "...\n"; // DEBUG
         }
 
         // Bucket has been depleted after exiting while loop, so now we move on to the next bucket.
     }
 
+    //std::cout << "DEBUG Done rehashing old buckets.\n"; // DEBUG
+
+    //std::cout << "DEBUG Attempting to delete old hashAry...\n"; // DEBUG
     // Deallocate the old hash array.
     // I think the HashBucket destructor will take care of the remaining sentinel nodes for me.
     delete [] hashAry;
+    
+    //std::cout << "DEBUG Successfully removed old hashAry...\n"; // DEBUG
 
     // Point hashAry to the new Hash Table
     hashAry = newTablePtr;
