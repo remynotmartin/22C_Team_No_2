@@ -417,19 +417,18 @@ void undoRemove (Stack<Country> &undoStack, LinkedList<Country> &coreDataList, H
 {
     ListNode<Country> *dataPtr = undoStack.pop();
     if (!dataPtr) // dataPtr == nullptr, so undo stack was empty.
-    {
         std::cout << "The deletion stack is empty!" << std::endl;
-        return;
+    else
+    {
+        // Reinsert into coreDataList
+        coreDataList.insert(dataPtr);
+
+        // Relink
+        nameTable.insert(dataPtr);
+        langTree.insertBST(dataPtr, compareLang);
+
+        std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
     }
-
-    // Reinsert into coreDataList
-    coreDataList.insert(dataPtr);
-
-    // Relink
-    nameTable.insert(dataPtr);
-    langTree.insertBST(dataPtr, compareLang);
-
-    std::cout << dataPtr->getItem().getName() << " has been restored from the deletion stack." << std::endl;
 }
 
 // This function writes all records currently in the coreDataList to an output file as specified by its

@@ -1,0 +1,46 @@
+\documentclass{article}
+\title{CIS 22C Group Project\\Team 2 --- Test Plan}
+\author{Remy Dinh}
+
+\begin{document}
+
+\maketitle{}
+\begin{enumerate}
+    \item{Add a new record to the database.}
+        \begin{enumerate}
+            \item{Select option 1}
+            \item{Follow the prompts, and add a record that doesn't already exist in the database.}
+            \item{Select option 3 (search) and follow prompts to prove that new record exists in hash table.}
+            \item{Select option 5 (BST printout) and follow prompts to prove that new record exists in the BST.}
+        \end{enumerate}
+    \item{Delete a record from the database.}
+        \begin{enumerate}
+            \item{Select option 7 to show hash table metadata \textit{before} deletion.}
+            \item{Select option 2, and input name of a record to be deleted from the database.}
+            \item{Select option 2 again, and try to remove the item again.}
+            \item{Select option 5 to verify removal from BST.}
+            \item{Select option 3 and use it to verify removal from hash table.}
+            \item{Select option 7 to show hash table metadata \textit{after} deletion.}
+        \end{enumerate}
+    \item{Insert a synonym into the database, to demonstrate collision resolution.}
+        \begin{enumerate}
+            \item{Select option 1, and add an item with a country name that's a corruption of another. Say "Romania" becomes "ainamoR" (due to ASCII case-sensitivity)}
+            \item{Basically repeat the first test to prove that the synonym was successfully added to the database.}
+        \end{enumerate}
+    \item{[Required Easter Egg] Display team member names}
+        \begin{enumerate}
+            \item{Select hidden option 42. Voila!}
+        \end{enumerate}
+    \item{Demonstrate Binary Search Tree orders items correctly.}
+        \begin{enumerate}
+            \item{Select option 5. This prints out an in-order traversal of the langTree, which is a BST of the data sorted by the secondary key, \textit{recognized language.}}
+            \item{Manually input and delete a few records, then reprint the tree to show that they are getting added and deleted from the BST properly.}
+        \end{enumerate}
+    \item{Binary Search Tree indented print-out.}
+        \begin{enumerate}
+            \item{Select hidden option 47. Voila!}
+        \end{enumerate}
+    \item{
+\end{enumerate}
+
+\end{document}

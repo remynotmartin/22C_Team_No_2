@@ -33,3 +33,7 @@
 
 # Output database file when the program is run.
 data/database.csv
+
+# Aux Documentation byproducts
+docs/testPlan.aux
+docs/testPlan.log

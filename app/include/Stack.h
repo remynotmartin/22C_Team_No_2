@@ -76,11 +76,15 @@ void Stack<ItemType>::clear()
 template <typename ItemType>
 ListNode<ItemType> *Stack<ItemType>::pop()
 {
-    if (isEmpty())
+    if (top == nullptr)
         return nullptr;
 
     ListNode<ItemType> *holder = top;
     top = top->getNext();
+
+    // We need to disconnect holder from the stack;
+    holder->setNext(nullptr);
+
     count--;
 
     return holder;
@@ -89,9 +93,8 @@ ListNode<ItemType> *Stack<ItemType>::pop()
 template <typename ItemType>
 void Stack<ItemType>::push(ListNode<ItemType> *input)
 {
-    ListNode<ItemType> *newNode = input;
-    newNode->setNext(top);
-    top = newNode;
+    input->setNext(top);
+    top = input;
     count++;
 }
 

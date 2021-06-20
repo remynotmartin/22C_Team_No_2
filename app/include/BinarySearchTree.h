@@ -146,34 +146,30 @@ void BinarySearchTree<ItemType>::_insert(BinaryNode<ItemType> *subTreeRoot,
                                          BinaryNode<ItemType> *newNodePtr,
                                          unsigned              compare(const ItemType&, const ItemType&))
 {
-    
-    if (rootPtr == nullptr) // == NULL
-    {
+    if (rootPtr == nullptr) // Handles case of empty tree
         rootPtr = newNodePtr;
-        return;
-    }
-
-    BinaryNode<ItemType> *pCur = subTreeRoot;
-
-    unsigned compResult = compare(pCur->getData(), newNodePtr->getData());
-
-    // "You're going to see that trees really lend themselves to recursion." - Delia, Winter Quarter 2017
-    //
-    // "Thank goodness." - Remy, Spring Quarter 2021
-
-    if (compResult == 1) // newNodePtr's item's secondary key < pCur's item's secondary key, so go left
+    else
     {
-        if (pCur->getLeftPtr()) // A left node already exists
-            _insert(pCur->getLeftPtr(), newNodePtr, compare);
-        else
-            pCur->setLeftPtr(newNodePtr);
-    }
-    else // Case where newNodePtr's item's secondary key is either greater or equal to pCur's
-    {
-        if (pCur->getRightPtr()) // A right node already exists
-            _insert(pCur->getRightPtr(), newNodePtr, compare);
-        else
-            pCur->setRightPtr(newNodePtr);
+        unsigned compResult = compare(subTreeRoot->getData(), newNodePtr->getData());
+
+        // "You're going to see that trees really lend themselves to recursion." - Delia, Winter Quarter 2017
+        //
+        // "Thank goodness." - Remy, Spring Quarter 2021
+
+        if (compResult == 1) // newNodePtr's item's secondary key < pCur's item's secondary key, so go left
+        {
+            if (subTreeRoot->getLeftPtr()) // A left node already exists
+                _insert(subTreeRoot->getLeftPtr(), newNodePtr, compare);
+            else
+                subTreeRoot->setLeftPtr(newNodePtr);
+        }
+        else // Case where newNodePtr's item's secondary key is either greater or equal to pCur's
+        {
+            if (subTreeRoot->getRightPtr()) // A right node already exists
+                _insert(subTreeRoot->getRightPtr(), newNodePtr, compare);
+            else
+                subTreeRoot->setRightPtr(newNodePtr);
+        }
     }
 }
 
@@ -241,7 +237,7 @@ bool BinarySearchTree<ItemType>::_remove(BinaryNode<ItemType> *treeRoot, const I
     {
         unsigned compResult = compare(current->getData(), target);
 
-        if (compResult == 0 && current->getData() == target) // Match secondary key
+        if (compResult == 0) // Match secondary key
         {
             if (current->getData() == target) // Match Primary Key
             {
