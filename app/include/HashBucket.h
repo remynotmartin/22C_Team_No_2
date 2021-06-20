@@ -57,11 +57,13 @@ template<class ItemType>
 HashBucket<ItemType>::~HashBucket()
 {
      // Pop an item if possible, should return nullptr if only the sentinel node remains.
-    HashNode<ItemType> *terminator = popItem();
-    while (terminator != nullptr)
+    HashNode<ItemType> *terminator = bucketHead->getNext(),
+                       *nextNode   = terminator->getNext();
+    while (terminator != bucketHead)
     {
         delete terminator;
-        terminator = popItem();
+        terminator = nextNode;
+        nextNode = nextNode->getNext();
     }
 
     // Now that the list is clear, only the sentinel node remains, so delete the sentinel node.
